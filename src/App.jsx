@@ -130,17 +130,16 @@ export default function NexoraLanding() {
     return () => window.removeEventListener("scroll", h);
   }, []);
 
-  const handleSubmit = async () => {
+   const handleSubmit = async () => {
     if (!email.includes("@")) return;
     setSubmitted(true);
-    // Brevo integration placeholder — remplace YOUR_BREVO_LIST_ID et YOUR_BREVO_API_KEY
-    // try {
-    //   await fetch("https://api.brevo.com/v3/contacts", {
-    //     method: "POST",
-    //     headers: { "api-key": "YOUR_BREVO_API_KEY", "Content-Type": "application/json" },
-    //     body: JSON.stringify({ email, listIds: [YOUR_BREVO_LIST_ID], updateEnabled: true })
-    //   });
-    // } catch(e) { console.error(e); }
+    try {
+      await fetch("https://api.brevo.com/v3/contacts", {
+        method: "POST",
+        headers: { "api-key": "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", "Content-Type": "application/json" },
+        body: JSON.stringify({ email, listIds: [2], updateEnabled: true })
+      });
+    } catch(e) { console.error(e); }
   };
 
   const pad = isMobile ? "1rem" : "2rem";
