@@ -248,6 +248,148 @@ export default function NexoraLanding() {
         <StepsIndicator steps={steps} />
       </section>
 
+      {/* ONBOARDING SECTION */}
+      <section style={S.section(960)}>
+        <FadeIn style={{ textAlign: "center", marginBottom: "3rem" }}>
+          <p style={S.label}>AVANT TOUT</p>
+          <h2 style={S.h2}>Nexora commence<br /><span style={{ color: "#334155" }}>par te connaître.</span></h2>
+          <p style={{ color: "#475569", fontSize: "0.9rem", maxWidth: 520, margin: "0 auto" }}>Avant d'analyser tes trades, Nexora construit ton profil décisionnel complet. C'est ce qui rend chaque analyse unique — basée sur toi, pas sur un trader générique.</p>
+        </FadeIn>
+
+        <FadeIn delay={0.1}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: "1rem", marginBottom: "2rem" }}>
+            {[
+              { step: "01", title: "Ton profil", desc: "Ton marché, ton expérience, ton capital, ton historique de comptes.", icon: "◎" },
+              { step: "02", title: "Ton plan", desc: "Tes règles d'entrée, de sortie, ta gestion du risque. Nexora les mémorise.", icon: "◈" },
+              { step: "03", title: "Ta psychologie", desc: "Tes biais, tes erreurs récurrentes, tes comptes grillés. Tout compte.", icon: "⟁" },
+              { step: "04", title: "Tes objectifs", desc: "Ce que tu veux atteindre. Nexora calibre ses recommandations dessus.", icon: "◷" },
+            ].map((item, i) => (
+              <FadeIn key={i} delay={i * 0.08}>
+                <div className="fcard" style={{ position: "relative", overflow: "hidden" }}>
+                  <div style={{ position: "absolute", top: "1rem", right: "1rem", fontFamily: "'Syne',sans-serif", fontSize: "0.65rem", fontWeight: 800, color: "#1a1a2e", letterSpacing: "0.05em" }}>{item.step}</div>
+                  <div style={{ fontSize: "1.3rem", color: "#6d28d9", marginBottom: "0.75rem" }}>{item.icon}</div>
+                  <h3 style={{ fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: "0.95rem", marginBottom: "0.5rem" }}>{item.title}</h3>
+                  <p style={{ color: "#475569", fontSize: "0.82rem", lineHeight: 1.65 }}>{item.desc}</p>
+                </div>
+              </FadeIn>
+            ))}
+          </div>
+        </FadeIn>
+
+        {/* Key insight */}
+        <FadeIn delay={0.2}>
+          <div style={{ background: "#0d0d18", border: "1px solid #1a1a2e", borderLeft: "3px solid #6d28d9", borderRadius: 16, padding: "1.5rem 2rem", display: "flex", alignItems: "center", gap: "1.5rem", flexWrap: "wrap" }}>
+            <div style={{ fontSize: "1.5rem" }}>🔑</div>
+            <div>
+              <p style={{ fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: "0.95rem", marginBottom: "0.3rem" }}>Pourquoi c'est crucial</p>
+              <p style={{ color: "#475569", fontSize: "0.85rem", lineHeight: 1.7 }}>
+                C'est grâce à ton profil que Nexora sait si tu as respecté <strong style={{ color: "#a78bfa" }}>TON</strong> plan — pas un plan générique. Sans ça, l'analyse ne vaut rien.
+              </p>
+            </div>
+          </div>
+        </FadeIn>
+
+        {/* Arrow */}
+        <div style={{ textAlign: "center", padding: "2rem 0 0", color: "#3b1f6e", fontSize: "1.5rem" }}>↓</div>
+      </section>
+
+      {/* JOURNAL EXAMPLE */}
+      <section style={S.section(960)}>
+        <FadeIn style={{ textAlign: "center", marginBottom: "3rem" }}>
+          <p style={S.label}>LE JOURNAL — 30 SECONDES</p>
+          <h2 style={S.h2}>Tu remplis ça.<br /><span style={{ color: "#334155" }}>Nexora fait le reste.</span></h2>
+          <p style={{ color: "#475569", fontSize: "0.9rem" }}>Voici exactement ce qu'on te demande après chaque trade.</p>
+        </FadeIn>
+
+        <FadeIn delay={0.1}>
+          <div style={{ background: "#0d0d18", border: "1px solid #1a1a2e", borderRadius: 20, overflow: "hidden", marginBottom: "1.5rem" }}>
+            {/* Journal header */}
+            <div style={{ padding: "1.25rem 1.5rem", borderBottom: "1px solid #1a1a2e", display: "flex", alignItems: "center", gap: "0.75rem" }}>
+              <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#6d28d9", boxShadow: "0 0 8px #6d28d9" }} />
+              <span style={{ fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: "0.9rem" }}>Nouveau trade</span>
+              <span style={{ color: "#334155", fontSize: "0.78rem", marginLeft: "auto" }}>Mardi 09h18</span>
+            </div>
+
+            <div style={{ padding: "1.75rem", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.25rem" }}>
+              {/* Col 1 */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                {/* Actif */}
+                <div>
+                  <p style={{ fontSize: "0.68rem", color: "#475569", marginBottom: "0.4rem", fontWeight: 600, letterSpacing: "0.06em" }}>ACTIF</p>
+                  <div style={{ background: "#07070d", border: "1px solid #1a1a2e", borderRadius: 8, padding: "0.6rem 0.9rem", fontSize: "0.85rem", color: "#e2e8f0" }}>BTC/USDT</div>
+                </div>
+                {/* Direction */}
+                <div>
+                  <p style={{ fontSize: "0.68rem", color: "#475569", marginBottom: "0.4rem", fontWeight: 600, letterSpacing: "0.06em" }}>DIRECTION</p>
+                  <div style={{ display: "flex", gap: "0.5rem" }}>
+                    <div style={{ flex: 1, background: "rgba(16,185,129,.12)", border: "1px solid rgba(16,185,129,.3)", borderRadius: 8, padding: "0.6rem", fontSize: "0.82rem", color: "#34d399", textAlign: "center", fontWeight: 600 }}>▲ Long</div>
+                    <div style={{ flex: 1, background: "#07070d", border: "1px solid #1a1a2e", borderRadius: 8, padding: "0.6rem", fontSize: "0.82rem", color: "#334155", textAlign: "center" }}>▼ Short</div>
+                  </div>
+                </div>
+                {/* Résultat */}
+                <div>
+                  <p style={{ fontSize: "0.68rem", color: "#475569", marginBottom: "0.4rem", fontWeight: 600, letterSpacing: "0.06em" }}>RÉSULTAT</p>
+                  <div style={{ background: "#07070d", border: "1px solid #1a1a2e", borderRadius: 8, padding: "0.6rem 0.9rem", fontSize: "0.85rem", color: "#34d399", fontWeight: 600 }}>+ 3.8%</div>
+                </div>
+                {/* Contexte macro */}
+                <div>
+                  <p style={{ fontSize: "0.68rem", color: "#475569", marginBottom: "0.4rem", fontWeight: 600, letterSpacing: "0.06em" }}>CONTEXTE MACRO</p>
+                  <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
+                    {["Rien de majeur ✓", "CPI demain", "FOMC ce soir", "News crypto"].map((tag, i) => (
+                      <div key={i} style={{ background: i === 0 ? "rgba(109,40,217,.15)" : "#07070d", border: i === 0 ? "1px solid rgba(109,40,217,.3)" : "1px solid #1a1a2e", borderRadius: 20, padding: "0.25rem 0.65rem", fontSize: "0.72rem", color: i === 0 ? "#a78bfa" : "#334155", cursor: "pointer" }}>{tag}</div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Col 2 */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                {/* Pourquoi */}
+                <div>
+                  <p style={{ fontSize: "0.68rem", color: "#475569", marginBottom: "0.4rem", fontWeight: 600, letterSpacing: "0.06em" }}>POURQUOI CE TRADE ?</p>
+                  <div style={{ background: "#07070d", border: "1px solid #1a1a2e", borderRadius: 8, padding: "0.6rem 0.9rem", fontSize: "0.82rem", color: "#94a3b8", lineHeight: 1.6, minHeight: 60 }}>Breakout propre sur niveau clé, volume confirmé, pas de news majeures</div>
+                </div>
+                {/* État émotionnel */}
+                <div>
+                  <p style={{ fontSize: "0.68rem", color: "#475569", marginBottom: "0.4rem", fontWeight: 600, letterSpacing: "0.06em" }}>ÉTAT ÉMOTIONNEL</p>
+                  <div style={{ display: "flex", gap: "0.4rem" }}>
+                    {["😌 Calme", "😤 Stressé", "⚡ Impulsif", "🎯 Focus"].map((e, i) => (
+                      <div key={i} style={{ flex: 1, background: i === 0 ? "rgba(16,185,129,.1)" : "#07070d", border: i === 0 ? "1px solid rgba(16,185,129,.25)" : "1px solid #1a1a2e", borderRadius: 8, padding: "0.4rem 0.2rem", fontSize: "0.7rem", color: i === 0 ? "#34d399" : "#334155", textAlign: "center", cursor: "pointer" }}>{e}</div>
+                    ))}
+                  </div>
+                </div>
+                {/* Confiance */}
+                <div>
+                  <p style={{ fontSize: "0.68rem", color: "#475569", marginBottom: "0.4rem", fontWeight: 600, letterSpacing: "0.06em" }}>CONFIANCE — 7/10</p>
+                  <div style={{ background: "#07070d", border: "1px solid #1a1a2e", borderRadius: 8, padding: "0.5rem 0.9rem" }}>
+                    <div style={{ height: 4, background: "#1a1a2e", borderRadius: 2, position: "relative" }}>
+                      <div style={{ position: "absolute", left: 0, top: 0, height: "100%", width: "70%", background: "linear-gradient(90deg,#6d28d9,#a78bfa)", borderRadius: 2 }} />
+                    </div>
+                  </div>
+                </div>
+                {/* AI note - no plan respecté */}
+                <div style={{ background: "rgba(109,40,217,.06)", border: "1px solid rgba(109,40,217,.15)", borderRadius: 10, padding: "0.85rem 1rem" }}>
+                  <p style={{ fontSize: "0.68rem", color: "#6d28d9", fontWeight: 600, marginBottom: "0.3rem", letterSpacing: "0.06em" }}>NEXORA ÉVALUE ÇA POUR TOI</p>
+                  <p style={{ fontSize: "0.78rem", color: "#64748b", lineHeight: 1.6 }}>Tu ne juges pas si tu as respecté ton plan. Nexora le fait — sans complaisance, sans biais.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Submit */}
+            <div style={{ padding: "1rem 1.75rem 1.5rem" }}>
+              <div style={{ background: "linear-gradient(135deg,#6d28d9,#4f46e5)", borderRadius: 10, padding: "0.85rem", textAlign: "center", fontSize: "0.88rem", fontWeight: 600, fontFamily: "'Syne',sans-serif", color: "white", cursor: "pointer" }}>
+                Analyser ce trade avec Nexora →
+              </div>
+            </div>
+          </div>
+        </FadeIn>
+
+        {/* Arrow pointing down */}
+        <FadeIn delay={0.15}>
+          <div style={{ textAlign: "center", padding: "1rem 0", color: "#3b1f6e", fontSize: "1.5rem" }}>↓</div>
+        </FadeIn>
+      </section>
+
       {/* PRODUCT PREVIEW */}
       <section style={S.section(960)}>
         <FadeIn style={{ textAlign: "center", marginBottom: "3rem" }}>
