@@ -1,12 +1,23 @@
 import { useState, useEffect, useRef } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
-/* ─── Hooks & helpers ─── */
-const useInView = (threshold = 0.1) => {
+/* ─── Responsive hook ─── */
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
+  useEffect(() => {
+    const h = () => setIsMobile(window.innerWidth < 640);
+    window.addEventListener("resize", h);
+    return () => window.removeEventListener("resize", h);
+  }, []);
+  return isMobile;
+};
+
+/* ─── InView ─── */
+const useInView = () => {
   const ref = useRef(null);
   const [inView, setInView] = useState(false);
   useEffect(() => {
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setInView(true); }, { threshold });
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setInView(true); }, { threshold: 0.1 });
     if (ref.current) obs.observe(ref.current);
     return () => obs.disconnect();
   }, []);
@@ -16,16 +27,13 @@ const useInView = (threshold = 0.1) => {
 const FadeIn = ({ children, delay = 0, style = {} }) => {
   const [ref, inView] = useInView();
   return (
-    <div ref={ref} style={{
-      opacity: inView ? 1 : 0,
-      transform: inView ? "translateY(0)" : "translateY(24px)",
-      transition: `opacity 0.65s ease ${delay}s, transform 0.65s ease ${delay}s`,
-      ...style,
-    }}>{children}</div>
+    <div ref={ref} style={{ opacity: inView ? 1 : 0, transform: inView ? "translateY(0)" : "translateY(24px)", transition: `opacity 0.65s ease ${delay}s, transform 0.65s ease ${delay}s`, ...style }}>
+      {children}
+    </div>
   );
 };
 
-/* ─── Steps with active indicator ─── */
+/* ─── Steps indicator ─── */
 const StepsIndicator = ({ steps }) => {
   const [active, setActive] = useState(0);
   useEffect(() => {
@@ -56,21 +64,16 @@ const StepsIndicator = ({ steps }) => {
   );
 };
 
-/* ─── Decision curve chart ─── */
+/* ─── Chart ─── */
 const decisionData = [
   { week: "S1", score: 48 }, { week: "S2", score: 54 },
   { week: "S3", score: 51 }, { week: "S4", score: 63 },
   { week: "S5", score: 69 }, { week: "S6", score: 72 },
   { week: "S7", score: 78 }, { week: "S8", score: 84 },
 ];
-
 const CustomTooltip = ({ active, payload }) => {
   if (!active || !payload?.length) return null;
-  return (
-    <div style={{ background: "#12121f", border: "1px solid #3b1f6e", borderRadius: 8, padding: "0.5rem 0.8rem", fontSize: "0.78rem", color: "#a78bfa" }}>
-      Score : <strong>{payload[0].value}</strong>
-    </div>
-  );
+  return <div style={{ background: "#12121f", border: "1px solid #3b1f6e", borderRadius: 8, padding: "0.5rem 0.8rem", fontSize: "0.78rem", color: "#a78bfa" }}>Score : <strong>{payload[0].value}</strong></div>;
 };
 
 /* ─── Heatmap ─── */
@@ -85,10 +88,10 @@ const heatData = {
   "Sam-Matin": 60, "Sam-Après-midi": 52, "Sam-Soir": 30,
   "Dim-Matin": 55, "Dim-Après-midi": 48, "Dim-Soir": 25,
 };
-const scoreColor = (v) => {
-  if (v >= 75) return { bg: "rgba(16,185,129,0.18)", border: "rgba(16,185,129,0.3)", text: "#34d399" };
-  if (v >= 55) return { bg: "rgba(234,179,8,0.12)", border: "rgba(234,179,8,0.25)", text: "#fbbf24" };
-  return { bg: "rgba(239,68,68,0.12)", border: "rgba(239,68,68,0.25)", text: "#f87171" };
+const scoreColor = v => {
+  if (v >= 75) return { bg: "rgba(16,185,129,.18)", border: "rgba(16,185,129,.3)", text: "#34d399" };
+  if (v >= 55) return { bg: "rgba(234,179,8,.12)", border: "rgba(234,179,8,.25)", text: "#fbbf24" };
+  return { bg: "rgba(239,68,68,.12)", border: "rgba(239,68,68,.25)", text: "#f87171" };
 };
 
 /* ─── Data ─── */
@@ -110,6 +113,16 @@ export default function NexoraLanding() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [scrollY, setScrollY] = useState(0);
+  const isMobile = useIsMobile();
+
+  useEffect(() => {
+    // Update page title and favicon
+    document.title = "Nexora Bêta";
+    const favicon = document.querySelector("link[rel~='icon']") || document.createElement("link");
+    favicon.rel = "icon";
+    favicon.href = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234f46e5'/><text y='.9em' font-size='75' font-family='Helvetica Neue,Arial,sans-serif' font-weight='900' fill='white' x='50%' text-anchor='middle' dominant-baseline='middle' dy='.1em'>N</text></svg>";
+    document.head.appendChild(favicon);
+  }, []);
 
   useEffect(() => {
     const h = () => setScrollY(window.scrollY);
@@ -117,15 +130,43 @@ export default function NexoraLanding() {
     return () => window.removeEventListener("scroll", h);
   }, []);
 
-  const handleSubmit = () => { if (email.includes("@")) setSubmitted(true); };
+  const handleSubmit = async () => {
+    if (!email.includes("@")) return;
+    setSubmitted(true);
+    // Brevo integration placeholder — remplace YOUR_BREVO_LIST_ID et YOUR_BREVO_API_KEY
+    // try {
+    //   await fetch("https://api.brevo.com/v3/contacts", {
+    //     method: "POST",
+    //     headers: { "api-key": "YOUR_BREVO_API_KEY", "Content-Type": "application/json" },
+    //     body: JSON.stringify({ email, listIds: [YOUR_BREVO_LIST_ID], updateEnabled: true })
+    //   });
+    // } catch(e) { console.error(e); }
+  };
 
+  const pad = isMobile ? "1rem" : "2rem";
   const S = {
     page: { background: "#07070d", color: "#e2e8f0", fontFamily: "'DM Sans',sans-serif", minHeight: "100vh", overflowX: "hidden" },
-    section: (mw = 1100) => ({ padding: "5rem 2rem", maxWidth: mw, margin: "0 auto" }),
+    section: (mw = 1100) => ({ padding: isMobile ? "3rem 1rem" : "5rem 2rem", maxWidth: mw, margin: "0 auto" }),
     label: { fontSize: "0.72rem", color: "#6d28d9", letterSpacing: "0.1em", fontWeight: 600, marginBottom: "0.6rem" },
-    h2: { fontFamily: "'Syne',sans-serif", fontSize: "clamp(1.8rem,3vw,2.6rem)", fontWeight: 700, letterSpacing: "-0.02em", marginBottom: "1rem" },
+    h2: { fontFamily: "'Syne',sans-serif", fontSize: isMobile ? "clamp(1.5rem,6vw,2rem)" : "clamp(1.8rem,3vw,2.6rem)", fontWeight: 700, letterSpacing: "-0.02em", marginBottom: "1rem" },
     card: { background: "#0d0d18", border: "1px solid #1a1a2e", borderRadius: 16, padding: "1.75rem" },
   };
+
+  const CTA = () => (
+    <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", flexWrap: "wrap", justifyContent: "center" }}>
+      {!submitted ? <>
+        <input
+          style={{ background: "#0d0d18", border: "1px solid #1a1a2e", color: "#e2e8f0", padding: "0.9rem 1.2rem", borderRadius: 10, fontFamily: "'DM Sans',sans-serif", fontSize: "0.9rem", outline: "none", width: isMobile ? "100%" : 280 }}
+          type="email" placeholder="ton@email.com" value={email}
+          onChange={e => setEmail(e.target.value)}
+          onKeyDown={e => e.key === "Enter" && handleSubmit()}
+        />
+        <button onClick={handleSubmit} style={{ background: "linear-gradient(135deg,#6d28d9,#4f46e5)", color: "#fff", border: "none", padding: "0.9rem 2rem", borderRadius: 10, fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: "0.9rem", cursor: "pointer", width: isMobile ? "100%" : "auto" }}>
+          Rejoindre la liste →
+        </button>
+      </> : <div style={{ background: "rgba(109,40,217,.1)", border: "1px solid rgba(109,40,217,.3)", borderRadius: 10, padding: "0.9rem 2rem", color: "#a78bfa", fontSize: "0.9rem" }}>✓ Tu es sur la liste. On te contacte en premier.</div>}
+    </div>
+  );
 
   return (
     <div style={S.page}>
@@ -134,83 +175,82 @@ export default function NexoraLanding() {
         *{box-sizing:border-box;margin:0;padding:0}
         ::selection{background:#6d28d9;color:#fff}
         ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:#07070d}::-webkit-scrollbar-thumb{background:#3b1f6e;border-radius:2px}
-        .nav-link{color:#475569;font-size:.85rem;letter-spacing:.04em;cursor:pointer;transition:color .2s}.nav-link:hover{color:#e2e8f0}
-        .cta-btn{background:linear-gradient(135deg,#6d28d9,#4f46e5);color:#fff;border:none;padding:.9rem 2.2rem;border-radius:10px;font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;letter-spacing:.03em;cursor:pointer;transition:all .25s;position:relative;overflow:hidden}
-        .cta-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#7c3aed,#6366f1);opacity:0;transition:opacity .25s}.cta-btn:hover::after{opacity:1}.cta-btn span{position:relative;z-index:1}
-        .fcard{background:#0d0d18;border:1px solid #1a1a2e;border-radius:16px;padding:2rem;transition:all .3s;cursor:default}.fcard:hover{border-color:#3b1f6e;transform:translateY(-4px);box-shadow:0 20px 60px rgba(109,40,217,.12)}
-        .email-input{background:#0d0d18;border:1px solid #1a1a2e;color:#e2e8f0;padding:.9rem 1.2rem;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s;width:280px}.email-input:focus{border-color:#6d28d9}.email-input::placeholder{color:#1e293b}
+        .fcard{background:#0d0d18;border:1px solid #1a1a2e;border-radius:16px;padding:1.5rem;transition:all .3s}
+        .fcard:hover{border-color:#3b1f6e;transform:translateY(-4px);box-shadow:0 20px 60px rgba(109,40,217,.12)}
+        .tcard{background:#0d0d18;border:1px solid #1a1a2e;border-radius:14px;padding:1.5rem}
         .glow{width:6px;height:6px;border-radius:50%;background:#6d28d9;box-shadow:0 0 12px #6d28d9;display:inline-block}
         @keyframes pulse-ring{0%,100%{transform:scale(.95);opacity:.5}50%{transform:scale(1.05);opacity:.25}}
         @keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
         .shimmer{background:linear-gradient(90deg,#e2e8f0 0%,#a78bfa 40%,#e2e8f0 60%,#e2e8f0 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 4s linear infinite}
+        input:focus{border-color:#6d28d9 !important}
+        input::placeholder{color:#1e293b}
       `}</style>
 
       {/* NAV */}
-      <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, padding: "1rem 2rem", display: "flex", alignItems: "center", justifyContent: "space-between", background: scrollY > 40 ? "rgba(7,7,13,.92)" : "transparent", backdropFilter: scrollY > 40 ? "blur(20px)" : "none", borderBottom: scrollY > 40 ? "1px solid #12121f" : "none", transition: "all .3s" }}>
+      <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, padding: `0.9rem ${pad}`, display: "flex", alignItems: "center", justifyContent: "space-between", background: scrollY > 40 ? "rgba(7,7,13,.92)" : "transparent", backdropFilter: scrollY > 40 ? "blur(20px)" : "none", borderBottom: scrollY > 40 ? "1px solid #12121f" : "none", transition: "all .3s" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-          <div style={{ width: 30, height: 30, borderRadius: 8, background: "linear-gradient(135deg,#6d28d9,#4f46e5)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.75rem", fontWeight: 800, fontFamily: "'Syne',sans-serif" }}>N</div>
+          <div style={{ width: 32, height: 32, borderRadius: 9, background: "linear-gradient(135deg,#4f46e5,#7c3aed)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Syne',sans-serif", fontWeight: 900, fontSize: "1rem", color: "white" }}>N</div>
           <span style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: "1rem", letterSpacing: "0.06em" }}>NEXORA</span>
+          {!isMobile && <span style={{ fontSize: "0.65rem", color: "#6d28d9", background: "rgba(109,40,217,.1)", border: "1px solid rgba(109,40,217,.25)", borderRadius: 20, padding: "0.15rem 0.5rem", fontWeight: 600, letterSpacing: "0.06em" }}>BÊTA</span>}
         </div>
-        <div style={{ display: "flex", gap: "2rem", alignItems: "center" }}>
-          <span className="nav-link">Fonctionnalités</span>
-          <span className="nav-link">Comment ça marche</span>
-          <button className="cta-btn" style={{ padding: "0.55rem 1.3rem", fontSize: "0.8rem" }}><span>Accès anticipé</span></button>
-        </div>
+        {!isMobile && (
+          <div style={{ display: "flex", gap: "2rem", alignItems: "center" }}>
+            <span style={{ color: "#475569", fontSize: ".85rem", cursor: "pointer" }}>Fonctionnalités</span>
+            <span style={{ color: "#475569", fontSize: ".85rem", cursor: "pointer" }}>Comment ça marche</span>
+            <button onClick={handleSubmit} style={{ background: "linear-gradient(135deg,#6d28d9,#4f46e5)", color: "#fff", border: "none", padding: "0.55rem 1.3rem", borderRadius: 10, fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: "0.8rem", cursor: "pointer" }}>Accès anticipé</button>
+          </div>
+        )}
+        {isMobile && <button onClick={handleSubmit} style={{ background: "linear-gradient(135deg,#6d28d9,#4f46e5)", color: "#fff", border: "none", padding: "0.45rem 1rem", borderRadius: 8, fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: "0.75rem", cursor: "pointer" }}>Accès bêta</button>}
       </nav>
 
       {/* HERO */}
-      <section style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "8rem 2rem 4rem", position: "relative", textAlign: "center" }}>
-        <div style={{ position: "absolute", top: "20%", left: "10%", width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle,rgba(109,40,217,.1) 0%,transparent 70%)", animation: "pulse-ring 7s ease-in-out infinite", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", top: "35%", right: "8%", width: 300, height: 300, borderRadius: "50%", background: "radial-gradient(circle,rgba(79,70,229,.08) 0%,transparent 70%)", animation: "pulse-ring 9s ease-in-out infinite 2s", pointerEvents: "none" }} />
+      <section style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: isMobile ? "7rem 1.25rem 3rem" : "8rem 2rem 4rem", position: "relative", textAlign: "center" }}>
+        <div style={{ position: "absolute", top: "20%", left: "10%", width: isMobile ? 200 : 500, height: isMobile ? 200 : 500, borderRadius: "50%", background: "radial-gradient(circle,rgba(109,40,217,.1) 0%,transparent 70%)", animation: "pulse-ring 7s ease-in-out infinite", pointerEvents: "none" }} />
 
-        {/* Badge */}
         <div style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", background: "rgba(109,40,217,.1)", border: "1px solid rgba(109,40,217,.3)", borderRadius: 20, padding: "0.4rem 1rem", fontSize: "0.72rem", color: "#a78bfa", fontWeight: 500, letterSpacing: "0.06em", marginBottom: "2rem" }}>
           <span className="glow" /> ACCÈS ANTICIPÉ · 100 PLACES
         </div>
 
-        {/* Headline */}
-        <h1 style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(2.8rem,6vw,5.5rem)", fontWeight: 800, lineHeight: 1.08, letterSpacing: "-0.03em", maxWidth: 820, marginBottom: "1.5rem" }}>
+        {/* Tagline principale */}
+        <p style={{ fontSize: isMobile ? "0.75rem" : "0.85rem", color: "#6d28d9", fontWeight: 600, letterSpacing: "0.08em", marginBottom: "1rem", textTransform: "uppercase" }}>
+          Le premier système d'aide à la prise de décision pour traders
+        </p>
+
+        <h1 style={{ fontFamily: "'Syne',sans-serif", fontSize: isMobile ? "clamp(2rem,8vw,3rem)" : "clamp(2.8rem,6vw,5.5rem)", fontWeight: 800, lineHeight: 1.08, letterSpacing: "-0.03em", maxWidth: 820, marginBottom: "1.5rem" }}>
           <span className="shimmer">Nexora apprend</span><br />
           <span>de tes trades.</span><br />
           <span>Et te rend </span>
           <span style={{ background: "linear-gradient(135deg,#a78bfa,#6366f1)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>meilleur.</span>
         </h1>
 
-        <p style={{ fontSize: "1.05rem", color: "#475569", maxWidth: 500, lineHeight: 1.75, marginBottom: "3rem", fontWeight: 300 }}>
+        <p style={{ fontSize: isMobile ? "0.9rem" : "1.05rem", color: "#475569", maxWidth: 500, lineHeight: 1.75, marginBottom: "3rem", fontWeight: 300 }}>
           Tu ne perds pas par manque d'info.<br />
           Tu perds parce que personne ne t'a encore montré <strong style={{ color: "#94a3b8", fontWeight: 500 }}>comment tu décides vraiment.</strong>
         </p>
 
-        {/* CTA */}
-        <div style={{ display: "flex", gap: "1rem", alignItems: "center", flexWrap: "wrap", justifyContent: "center" }}>
-          {!submitted ? <>
-            <input className="email-input" type="email" placeholder="ton@email.com" value={email} onChange={e => setEmail(e.target.value)} onKeyDown={e => e.key === "Enter" && handleSubmit()} />
-            <button className="cta-btn" onClick={handleSubmit}><span>Rejoindre la liste d'attente →</span></button>
-          </> : <div style={{ background: "rgba(109,40,217,.1)", border: "1px solid rgba(109,40,217,.3)", borderRadius: 10, padding: "0.9rem 2rem", color: "#a78bfa", fontSize: "0.9rem" }}>✓ Tu es sur la liste. On te contacte en premier.</div>}
-        </div>
+        <CTA />
         <p style={{ color: "#1e293b", fontSize: "0.72rem", marginTop: "1rem" }}>Pas de spam. Pas de CB. Accès early bird offert aux 100 premiers.</p>
 
-        {/* 3 pillars */}
-        <div style={{ display: "flex", gap: "3rem", marginTop: "5rem", borderTop: "1px solid #0d0d18", paddingTop: "2.5rem", flexWrap: "wrap", justifyContent: "center" }}>
+        <div style={{ display: "flex", gap: isMobile ? "1.5rem" : "3rem", marginTop: "4rem", borderTop: "1px solid #0d0d18", paddingTop: "2.5rem", flexWrap: "wrap", justifyContent: "center" }}>
           {[
             { n: "0", label: "signal. 0 prédiction. 100% basé sur toi." },
-            { n: "∞", label: "patterns comportementaux détectés dans ton historique" },
-            { n: "1", label: "seul objectif — que tu prennes de meilleures décisions" },
+            { n: "∞", label: "patterns comportementaux détectés" },
+            { n: "1", label: "seul objectif — améliorer tes décisions" },
           ].map((s, i) => (
             <div key={i} style={{ textAlign: "center" }}>
-              <div style={{ fontFamily: "'Syne',sans-serif", fontSize: "2rem", fontWeight: 800, color: "#a78bfa" }}>{s.n}</div>
-              <div style={{ color: "#334155", fontSize: "0.75rem", maxWidth: 140, lineHeight: 1.5 }}>{s.label}</div>
+              <div style={{ fontFamily: "'Syne',sans-serif", fontSize: isMobile ? "1.5rem" : "2rem", fontWeight: 800, color: "#a78bfa" }}>{s.n}</div>
+              <div style={{ color: "#334155", fontSize: "0.72rem", maxWidth: 130, lineHeight: 1.5 }}>{s.label}</div>
             </div>
           ))}
         </div>
       </section>
 
       {/* PROBLEM */}
-      <section style={{ ...S.section(760) }}>
+      <section style={S.section(760)}>
         <FadeIn>
-          <div style={{ background: "#0d0d18", border: "1px solid #1a1a2e", borderLeft: "3px solid #6d28d9", borderRadius: 20, padding: "3rem" }}>
+          <div style={{ background: "#0d0d18", border: "1px solid #1a1a2e", borderLeft: "3px solid #6d28d9", borderRadius: 20, padding: isMobile ? "1.75rem" : "3rem" }}>
             <p style={S.label}>LE VRAI PROBLÈME</p>
-            <h2 style={{ ...S.h2 }}>Tu as accès à tout.<br /><span style={{ color: "#334155" }}>Et tu perds encore.</span></h2>
+            <h2 style={S.h2}>Tu as accès à tout.<br /><span style={{ color: "#334155" }}>Et tu perds encore.</span></h2>
             <p style={{ color: "#475569", lineHeight: 1.85, fontSize: "0.95rem" }}>
               Formations, indicateurs, signaux, groupes Telegram.<br />
               Le problème n'est pas le manque d'information.<br />
@@ -226,12 +266,12 @@ export default function NexoraLanding() {
           <p style={S.label}>FONCTIONNALITÉS</p>
           <h2 style={S.h2}>Tout ce dont tu as besoin.<br /><span style={{ color: "#334155" }}>Rien de superflu.</span></h2>
         </FadeIn>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: "1.25rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(2,1fr)", gap: "1rem" }}>
           {features.map((f, i) => (
-            <FadeIn key={i} delay={i * 0.1}>
+            <FadeIn key={i} delay={i * 0.08}>
               <div className="fcard">
-                <div style={{ fontSize: "1.4rem", color: "#6d28d9", marginBottom: "1rem" }}>{f.icon}</div>
-                <h3 style={{ fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: "1rem", marginBottom: "0.6rem" }}>{f.title}</h3>
+                <div style={{ fontSize: "1.4rem", color: "#6d28d9", marginBottom: "0.75rem" }}>{f.icon}</div>
+                <h3 style={{ fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: "1rem", marginBottom: "0.5rem" }}>{f.title}</h3>
                 <p style={{ color: "#475569", fontSize: "0.85rem", lineHeight: 1.7 }}>{f.desc}</p>
               </div>
             </FadeIn>
@@ -248,52 +288,45 @@ export default function NexoraLanding() {
         <StepsIndicator steps={steps} />
       </section>
 
-      {/* ONBOARDING SECTION */}
+      {/* ONBOARDING */}
       <section style={S.section(960)}>
         <FadeIn style={{ textAlign: "center", marginBottom: "3rem" }}>
           <p style={S.label}>AVANT TOUT</p>
           <h2 style={S.h2}>Nexora commence<br /><span style={{ color: "#334155" }}>par te connaître.</span></h2>
-          <p style={{ color: "#475569", fontSize: "0.9rem", maxWidth: 520, margin: "0 auto" }}>Avant d'analyser tes trades, Nexora construit ton profil décisionnel complet. C'est ce qui rend chaque analyse unique — basée sur toi, pas sur un trader générique.</p>
+          <p style={{ color: "#475569", fontSize: "0.9rem", maxWidth: 520, margin: "0 auto" }}>Avant d'analyser tes trades, Nexora construit ton profil décisionnel complet. C'est ce qui rend chaque analyse unique.</p>
         </FadeIn>
 
-        <FadeIn delay={0.1}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: "1rem", marginBottom: "2rem" }}>
-            {[
-              { step: "01", title: "Ton profil", desc: "Ton marché, ton expérience, ton capital, ton historique de comptes.", icon: "◎" },
-              { step: "02", title: "Ton plan", desc: "Tes règles d'entrée, de sortie, ta gestion du risque. Nexora les mémorise.", icon: "◈" },
-              { step: "03", title: "Ta psychologie", desc: "Tes biais, tes erreurs récurrentes, tes comptes grillés. Tout compte.", icon: "⟁" },
-              { step: "04", title: "Tes objectifs", desc: "Ce que tu veux atteindre. Nexora calibre ses recommandations dessus.", icon: "◷" },
-            ].map((item, i) => (
-              <FadeIn key={i} delay={i * 0.08}>
-                <div className="fcard" style={{ position: "relative", overflow: "hidden" }}>
-                  <div style={{ position: "absolute", top: "1rem", right: "1rem", fontFamily: "'Syne',sans-serif", fontSize: "0.65rem", fontWeight: 800, color: "#1a1a2e", letterSpacing: "0.05em" }}>{item.step}</div>
-                  <div style={{ fontSize: "1.3rem", color: "#6d28d9", marginBottom: "0.75rem" }}>{item.icon}</div>
-                  <h3 style={{ fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: "0.95rem", marginBottom: "0.5rem" }}>{item.title}</h3>
-                  <p style={{ color: "#475569", fontSize: "0.82rem", lineHeight: 1.65 }}>{item.desc}</p>
-                </div>
-              </FadeIn>
-            ))}
-          </div>
-        </FadeIn>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(2,1fr)", gap: "1rem", marginBottom: "1.5rem" }}>
+          {[
+            { step: "01", title: "Ton profil", desc: "Ton marché, ton expérience, ton capital, ton historique de comptes.", icon: "◎" },
+            { step: "02", title: "Ton plan", desc: "Tes règles d'entrée, de sortie, ta gestion du risque. Nexora les mémorise.", icon: "◈" },
+            { step: "03", title: "Ta psychologie", desc: "Tes biais, tes erreurs récurrentes, tes comptes grillés. Tout compte.", icon: "⟁" },
+            { step: "04", title: "Tes objectifs", desc: "Ce que tu veux atteindre. Nexora calibre ses recommandations dessus.", icon: "◷" },
+          ].map((item, i) => (
+            <FadeIn key={i} delay={i * 0.08}>
+              <div className="fcard" style={{ position: "relative" }}>
+                <div style={{ position: "absolute", top: "1rem", right: "1rem", fontFamily: "'Syne',sans-serif", fontSize: "0.65rem", fontWeight: 800, color: "#1a1a2e" }}>{item.step}</div>
+                <div style={{ fontSize: "1.3rem", color: "#6d28d9", marginBottom: "0.75rem" }}>{item.icon}</div>
+                <h3 style={{ fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: "0.95rem", marginBottom: "0.5rem" }}>{item.title}</h3>
+                <p style={{ color: "#475569", fontSize: "0.82rem", lineHeight: 1.65 }}>{item.desc}</p>
+              </div>
+            </FadeIn>
+          ))}
+        </div>
 
-        {/* Key insight */}
         <FadeIn delay={0.2}>
           <div style={{ background: "#0d0d18", border: "1px solid #1a1a2e", borderLeft: "3px solid #6d28d9", borderRadius: 16, padding: "1.5rem 2rem", display: "flex", alignItems: "center", gap: "1.5rem", flexWrap: "wrap" }}>
             <div style={{ fontSize: "1.5rem" }}>🔑</div>
             <div>
               <p style={{ fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: "0.95rem", marginBottom: "0.3rem" }}>Pourquoi c'est crucial</p>
-              <p style={{ color: "#475569", fontSize: "0.85rem", lineHeight: 1.7 }}>
-                C'est grâce à ton profil que Nexora sait si tu as respecté <strong style={{ color: "#a78bfa" }}>TON</strong> plan — pas un plan générique. Sans ça, l'analyse ne vaut rien.
-              </p>
+              <p style={{ color: "#475569", fontSize: "0.85rem", lineHeight: 1.7 }}>C'est grâce à ton profil que Nexora sait si tu as respecté <strong style={{ color: "#a78bfa" }}>TON</strong> plan — pas un plan générique. Sans ça, l'analyse ne vaut rien.</p>
             </div>
           </div>
         </FadeIn>
-
-        {/* Arrow */}
         <div style={{ textAlign: "center", padding: "2rem 0 0", color: "#3b1f6e", fontSize: "1.5rem" }}>↓</div>
       </section>
 
-      {/* JOURNAL EXAMPLE */}
+      {/* JOURNAL */}
       <section style={S.section(960)}>
         <FadeIn style={{ textAlign: "center", marginBottom: "3rem" }}>
           <p style={S.label}>LE JOURNAL — 30 SECONDES</p>
@@ -303,22 +336,18 @@ export default function NexoraLanding() {
 
         <FadeIn delay={0.1}>
           <div style={{ background: "#0d0d18", border: "1px solid #1a1a2e", borderRadius: 20, overflow: "hidden", marginBottom: "1.5rem" }}>
-            {/* Journal header */}
             <div style={{ padding: "1.25rem 1.5rem", borderBottom: "1px solid #1a1a2e", display: "flex", alignItems: "center", gap: "0.75rem" }}>
               <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#6d28d9", boxShadow: "0 0 8px #6d28d9" }} />
               <span style={{ fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: "0.9rem" }}>Nouveau trade</span>
               <span style={{ color: "#334155", fontSize: "0.78rem", marginLeft: "auto" }}>Mardi 09h18</span>
             </div>
 
-            <div style={{ padding: "1.75rem", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.25rem" }}>
-              {/* Col 1 */}
+            <div style={{ padding: "1.5rem", display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "1.25rem" }}>
               <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                {/* Actif */}
                 <div>
                   <p style={{ fontSize: "0.68rem", color: "#475569", marginBottom: "0.4rem", fontWeight: 600, letterSpacing: "0.06em" }}>ACTIF</p>
                   <div style={{ background: "#07070d", border: "1px solid #1a1a2e", borderRadius: 8, padding: "0.6rem 0.9rem", fontSize: "0.85rem", color: "#e2e8f0" }}>BTC/USDT</div>
                 </div>
-                {/* Direction */}
                 <div>
                   <p style={{ fontSize: "0.68rem", color: "#475569", marginBottom: "0.4rem", fontWeight: 600, letterSpacing: "0.06em" }}>DIRECTION</p>
                   <div style={{ display: "flex", gap: "0.5rem" }}>
@@ -326,39 +355,33 @@ export default function NexoraLanding() {
                     <div style={{ flex: 1, background: "#07070d", border: "1px solid #1a1a2e", borderRadius: 8, padding: "0.6rem", fontSize: "0.82rem", color: "#334155", textAlign: "center" }}>▼ Short</div>
                   </div>
                 </div>
-                {/* Résultat */}
                 <div>
                   <p style={{ fontSize: "0.68rem", color: "#475569", marginBottom: "0.4rem", fontWeight: 600, letterSpacing: "0.06em" }}>RÉSULTAT</p>
                   <div style={{ background: "#07070d", border: "1px solid #1a1a2e", borderRadius: 8, padding: "0.6rem 0.9rem", fontSize: "0.85rem", color: "#34d399", fontWeight: 600 }}>+ 3.8%</div>
                 </div>
-                {/* Contexte macro */}
                 <div>
                   <p style={{ fontSize: "0.68rem", color: "#475569", marginBottom: "0.4rem", fontWeight: 600, letterSpacing: "0.06em" }}>CONTEXTE MACRO</p>
                   <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
                     {["Rien de majeur ✓", "CPI demain", "FOMC ce soir", "News crypto"].map((tag, i) => (
-                      <div key={i} style={{ background: i === 0 ? "rgba(109,40,217,.15)" : "#07070d", border: i === 0 ? "1px solid rgba(109,40,217,.3)" : "1px solid #1a1a2e", borderRadius: 20, padding: "0.25rem 0.65rem", fontSize: "0.72rem", color: i === 0 ? "#a78bfa" : "#334155", cursor: "pointer" }}>{tag}</div>
+                      <div key={i} style={{ background: i === 0 ? "rgba(109,40,217,.15)" : "#07070d", border: i === 0 ? "1px solid rgba(109,40,217,.3)" : "1px solid #1a1a2e", borderRadius: 20, padding: "0.25rem 0.65rem", fontSize: "0.7rem", color: i === 0 ? "#a78bfa" : "#334155" }}>{tag}</div>
                     ))}
                   </div>
                 </div>
               </div>
 
-              {/* Col 2 */}
               <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                {/* Pourquoi */}
                 <div>
                   <p style={{ fontSize: "0.68rem", color: "#475569", marginBottom: "0.4rem", fontWeight: 600, letterSpacing: "0.06em" }}>POURQUOI CE TRADE ?</p>
                   <div style={{ background: "#07070d", border: "1px solid #1a1a2e", borderRadius: 8, padding: "0.6rem 0.9rem", fontSize: "0.82rem", color: "#94a3b8", lineHeight: 1.6, minHeight: 60 }}>Breakout propre sur niveau clé, volume confirmé, pas de news majeures</div>
                 </div>
-                {/* État émotionnel */}
                 <div>
                   <p style={{ fontSize: "0.68rem", color: "#475569", marginBottom: "0.4rem", fontWeight: 600, letterSpacing: "0.06em" }}>ÉTAT ÉMOTIONNEL</p>
-                  <div style={{ display: "flex", gap: "0.4rem" }}>
+                  <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
                     {["😌 Calme", "😤 Stressé", "⚡ Impulsif", "🎯 Focus"].map((e, i) => (
-                      <div key={i} style={{ flex: 1, background: i === 0 ? "rgba(16,185,129,.1)" : "#07070d", border: i === 0 ? "1px solid rgba(16,185,129,.25)" : "1px solid #1a1a2e", borderRadius: 8, padding: "0.4rem 0.2rem", fontSize: "0.7rem", color: i === 0 ? "#34d399" : "#334155", textAlign: "center", cursor: "pointer" }}>{e}</div>
+                      <div key={i} style={{ flex: 1, minWidth: 60, background: i === 0 ? "rgba(16,185,129,.1)" : "#07070d", border: i === 0 ? "1px solid rgba(16,185,129,.25)" : "1px solid #1a1a2e", borderRadius: 8, padding: "0.4rem 0.2rem", fontSize: "0.7rem", color: i === 0 ? "#34d399" : "#334155", textAlign: "center" }}>{e}</div>
                     ))}
                   </div>
                 </div>
-                {/* Confiance */}
                 <div>
                   <p style={{ fontSize: "0.68rem", color: "#475569", marginBottom: "0.4rem", fontWeight: 600, letterSpacing: "0.06em" }}>CONFIANCE — 7/10</p>
                   <div style={{ background: "#07070d", border: "1px solid #1a1a2e", borderRadius: 8, padding: "0.5rem 0.9rem" }}>
@@ -367,7 +390,6 @@ export default function NexoraLanding() {
                     </div>
                   </div>
                 </div>
-                {/* AI note - no plan respecté */}
                 <div style={{ background: "rgba(109,40,217,.06)", border: "1px solid rgba(109,40,217,.15)", borderRadius: 10, padding: "0.85rem 1rem" }}>
                   <p style={{ fontSize: "0.68rem", color: "#6d28d9", fontWeight: 600, marginBottom: "0.3rem", letterSpacing: "0.06em" }}>NEXORA ÉVALUE ÇA POUR TOI</p>
                   <p style={{ fontSize: "0.78rem", color: "#64748b", lineHeight: 1.6 }}>Tu ne juges pas si tu as respecté ton plan. Nexora le fait — sans complaisance, sans biais.</p>
@@ -375,8 +397,7 @@ export default function NexoraLanding() {
               </div>
             </div>
 
-            {/* Submit */}
-            <div style={{ padding: "1rem 1.75rem 1.5rem" }}>
+            <div style={{ padding: "1rem 1.5rem 1.5rem" }}>
               <div style={{ background: "linear-gradient(135deg,#6d28d9,#4f46e5)", borderRadius: 10, padding: "0.85rem", textAlign: "center", fontSize: "0.88rem", fontWeight: 600, fontFamily: "'Syne',sans-serif", color: "white", cursor: "pointer" }}>
                 Analyser ce trade avec Nexora →
               </div>
@@ -384,9 +405,8 @@ export default function NexoraLanding() {
           </div>
         </FadeIn>
 
-        {/* Arrow pointing down */}
         <FadeIn delay={0.15}>
-          <div style={{ textAlign: "center", padding: "1rem 0", color: "#3b1f6e", fontSize: "1.5rem" }}>↓</div>
+          <div style={{ textAlign: "center", padding: "0.5rem 0 1rem", color: "#3b1f6e", fontSize: "1.5rem" }}>↓</div>
         </FadeIn>
       </section>
 
@@ -398,7 +418,6 @@ export default function NexoraLanding() {
           <p style={{ color: "#475569", fontSize: "0.9rem" }}>Pas des signaux. Pas des prédictions. Un miroir de toi.</p>
         </FadeIn>
 
-        {/* Trade card */}
         <FadeIn delay={0.1}>
           <div style={{ background: "#0d0d18", border: "1px solid #1a1a2e", borderRadius: 20, overflow: "hidden", marginBottom: "1.5rem" }}>
             <div style={{ padding: "1.25rem 1.5rem", borderBottom: "1px solid #1a1a2e", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.75rem" }}>
@@ -408,21 +427,19 @@ export default function NexoraLanding() {
               </div>
               <div style={{ background: "rgba(16,185,129,.1)", border: "1px solid rgba(16,185,129,.2)", borderRadius: 8, padding: "0.3rem 0.8rem", fontSize: "0.72rem", color: "#34d399", fontWeight: 600 }}>+3.8%</div>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0 }}>
-              {/* Left */}
-              <div style={{ padding: "1.5rem", borderRight: "1px solid #1a1a2e" }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 0 }}>
+              <div style={{ padding: "1.5rem", borderRight: isMobile ? "none" : "1px solid #1a1a2e", borderBottom: isMobile ? "1px solid #1a1a2e" : "none" }}>
                 <p style={{ fontSize: "0.68rem", color: "#334155", letterSpacing: "0.08em", marginBottom: "1rem", fontWeight: 600 }}>TON ENTRÉE</p>
                 {[
                   { l: "Pourquoi ce trade", v: "Breakout propre sur niveau clé, volume fort" },
                   { l: "État émotionnel", v: "😌 Calme — 1/5" },
                   { l: "Confiance", v: "⚡ 7/10" },
-                  { l: "Respect du plan", v: "✅ Oui" },
+                  { l: "Respect du plan", v: "✅ Évalué par Nexora" },
                 ].map((x, i) => <div key={i} style={{ marginBottom: "0.8rem" }}>
                   <p style={{ fontSize: "0.68rem", color: "#334155", marginBottom: "0.15rem" }}>{x.l}</p>
                   <p style={{ fontSize: "0.82rem", color: "#94a3b8" }}>{x.v}</p>
                 </div>)}
               </div>
-              {/* Right */}
               <div style={{ padding: "1.5rem" }}>
                 <p style={{ fontSize: "0.68rem", color: "#6d28d9", letterSpacing: "0.08em", marginBottom: "1rem", fontWeight: 600 }}>ANALYSE NEXORA</p>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.25rem" }}>
@@ -442,9 +459,8 @@ export default function NexoraLanding() {
           </div>
         </FadeIn>
 
-        {/* Row: curve + profile */}
-        <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: "1.25rem", marginBottom: "1.25rem" }}>
-          {/* Decision curve */}
+        {/* Curve + Profile */}
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1.4fr 1fr", gap: "1.25rem", marginBottom: "1.25rem" }}>
           <FadeIn delay={0.15}>
             <div style={{ background: "#0d0d18", border: "1px solid #1a1a2e", borderRadius: 20, padding: "1.75rem" }}>
               <p style={{ fontSize: "0.68rem", color: "#6d28d9", letterSpacing: "0.08em", fontWeight: 600, marginBottom: "0.3rem" }}>PROGRESSION DÉCISIONNELLE</p>
@@ -464,7 +480,6 @@ export default function NexoraLanding() {
             </div>
           </FadeIn>
 
-          {/* Trader profile */}
           <FadeIn delay={0.2}>
             <div style={{ background: "#0d0d18", border: "1px solid #1a1a2e", borderRadius: 20, padding: "1.75rem" }}>
               <p style={{ fontSize: "0.68rem", color: "#6d28d9", letterSpacing: "0.08em", fontWeight: 600, marginBottom: "1rem" }}>TON PROFIL DÉCISIONNEL</p>
@@ -492,23 +507,23 @@ export default function NexoraLanding() {
             <p style={{ fontSize: "0.68rem", color: "#6d28d9", letterSpacing: "0.08em", fontWeight: 600, marginBottom: "0.3rem" }}>HEATMAP COMPORTEMENTALE</p>
             <p style={{ fontSize: "0.8rem", color: "#334155", marginBottom: "1.5rem" }}>Quand tu décides bien — et quand tu ne devrais pas trader</p>
             <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "4px" }}>
+              <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: "4px", minWidth: 300 }}>
                 <thead>
                   <tr>
-                    <th style={{ fontSize: "0.68rem", color: "#334155", fontWeight: 500, textAlign: "left", paddingBottom: "0.5rem", width: 80 }}></th>
-                    {days.map(d => <th key={d} style={{ fontSize: "0.68rem", color: "#475569", fontWeight: 500, textAlign: "center", paddingBottom: "0.5rem" }}>{d}</th>)}
+                    <th style={{ fontSize: "0.68rem", color: "#334155", fontWeight: 500, textAlign: "left", paddingBottom: "0.5rem", width: 70 }}></th>
+                    {days.map(d => <th key={d} style={{ fontSize: "0.65rem", color: "#475569", fontWeight: 500, textAlign: "center", paddingBottom: "0.5rem" }}>{d}</th>)}
                   </tr>
                 </thead>
                 <tbody>
                   {slots.map(slot => (
                     <tr key={slot}>
-                      <td style={{ fontSize: "0.72rem", color: "#334155", paddingRight: "0.75rem", fontWeight: 500, whiteSpace: "nowrap" }}>{slot}</td>
+                      <td style={{ fontSize: "0.68rem", color: "#334155", paddingRight: "0.5rem", fontWeight: 500, whiteSpace: "nowrap" }}>{slot}</td>
                       {days.map(day => {
                         const v = heatData[`${day}-${slot}`] || 50;
                         const c = scoreColor(v);
                         return (
                           <td key={day} style={{ textAlign: "center", padding: "2px" }}>
-                            <div style={{ background: c.bg, border: `1px solid ${c.border}`, borderRadius: 8, padding: "0.4rem 0.2rem", fontSize: "0.72rem", color: c.text, fontWeight: 600, minWidth: 36 }}>{v}</div>
+                            <div style={{ background: c.bg, border: `1px solid ${c.border}`, borderRadius: 6, padding: "0.35rem 0.1rem", fontSize: "0.65rem", color: c.text, fontWeight: 600 }}>{v}</div>
                           </td>
                         );
                       })}
@@ -517,8 +532,8 @@ export default function NexoraLanding() {
                 </tbody>
               </table>
             </div>
-            <div style={{ display: "flex", gap: "1.25rem", marginTop: "1rem" }}>
-              {[{ c: "#34d399", bg: "rgba(16,185,129,.15)", l: "Décisions optimales (75+)" }, { c: "#fbbf24", bg: "rgba(234,179,8,.12)", l: "Acceptable (55–74)" }, { c: "#f87171", bg: "rgba(239,68,68,.12)", l: "Évite de trader (< 55)" }].map((x, i) => (
+            <div style={{ display: "flex", gap: "1rem", marginTop: "1rem", flexWrap: "wrap" }}>
+              {[{ c: "#34d399", bg: "rgba(16,185,129,.15)", l: "Optimal (75+)" }, { c: "#fbbf24", bg: "rgba(234,179,8,.12)", l: "Acceptable (55–74)" }, { c: "#f87171", bg: "rgba(239,68,68,.12)", l: "Évite (< 55)" }].map((x, i) => (
                 <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
                   <div style={{ width: 10, height: 10, borderRadius: 3, background: x.bg, border: `1px solid ${x.c}` }} />
                   <span style={{ fontSize: "0.7rem", color: "#334155" }}>{x.l}</span>
@@ -532,7 +547,7 @@ export default function NexoraLanding() {
       {/* WOW FACTOR */}
       <section style={S.section(760)}>
         <FadeIn>
-          <div style={{ background: "#0d0d18", border: "1px solid #1a1a2e", borderRadius: 20, padding: "3rem", textAlign: "center" }}>
+          <div style={{ background: "#0d0d18", border: "1px solid #1a1a2e", borderRadius: 20, padding: isMobile ? "1.75rem" : "3rem", textAlign: "center" }}>
             <p style={{ ...S.label, textAlign: "center" }}>CE QUE NEXORA RÉVÈLE</p>
             <h2 style={{ ...S.h2, marginBottom: "2rem" }}>
               "Tu pensais être mauvais en trading."<br />
@@ -554,14 +569,14 @@ export default function NexoraLanding() {
           <h2 style={S.h2}>Les premiers retours arrivent bientôt.</h2>
           <p style={{ color: "#475569", fontSize: "0.9rem" }}>Rejoins les premiers traders et construis le produit avec nous.</p>
         </FadeIn>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: "1.25rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3,1fr)", gap: "1rem" }}>
           {[
             { label: "Ce que tu découvres", text: "Tu identifies tes patterns de décision que tu ne vois jamais seul." },
             { label: "Ce que tu comprends", text: "Tu comprends pourquoi tu perds — pas comment le marché bouge." },
-            { label: "Ce que tu construis", text: "Une structure décisionnelle qui te ressemble et qui s'améliore chaque semaine." },
+            { label: "Ce que tu construis", text: "Une structure décisionnelle qui te ressemble et s'améliore chaque semaine." },
           ].map((t, i) => (
             <FadeIn key={i} delay={i * 0.1}>
-              <div style={{ ...S.card, borderLeft: "2px solid #3b1f6e" }}>
+              <div className="tcard" style={{ borderLeft: "2px solid #3b1f6e" }}>
                 <p style={{ ...S.label, marginBottom: "0.75rem" }}>{t.label}</p>
                 <p style={{ color: "#94a3b8", fontSize: "0.875rem", lineHeight: 1.75 }}>{t.text}</p>
               </div>
@@ -571,30 +586,25 @@ export default function NexoraLanding() {
       </section>
 
       {/* FINAL CTA */}
-      <section style={{ padding: "6rem 2rem 8rem", textAlign: "center", position: "relative" }}>
+      <section style={{ padding: isMobile ? "4rem 1.25rem 6rem" : "6rem 2rem 8rem", textAlign: "center", position: "relative" }}>
         <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: 600, height: 300, borderRadius: "50%", background: "radial-gradient(circle,rgba(109,40,217,.07) 0%,transparent 70%)", pointerEvents: "none" }} />
         <FadeIn>
-          <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: "clamp(2rem,4vw,3.5rem)", fontWeight: 800, letterSpacing: "-0.03em", marginBottom: "1rem", position: "relative" }}>
+          <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: isMobile ? "clamp(1.8rem,6vw,2.5rem)" : "clamp(2rem,4vw,3.5rem)", fontWeight: 800, letterSpacing: "-0.03em", marginBottom: "1rem", position: "relative" }}>
             Prêt à comprendre<br />
             <span style={{ background: "linear-gradient(135deg,#a78bfa,#6366f1)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>comment tu décides vraiment ?</span>
           </h2>
           <p style={{ color: "#475569", marginBottom: "2.5rem", fontSize: "0.95rem" }}>Accès early bird offert aux 100 premiers.</p>
-          <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
-            {!submitted ? <>
-              <input className="email-input" type="email" placeholder="ton@email.com" value={email} onChange={e => setEmail(e.target.value)} onKeyDown={e => e.key === "Enter" && handleSubmit()} />
-              <button className="cta-btn" onClick={handleSubmit}><span>Rejoindre maintenant →</span></button>
-            </> : <div style={{ background: "rgba(109,40,217,.1)", border: "1px solid rgba(109,40,217,.3)", borderRadius: 10, padding: "0.9rem 2rem", color: "#a78bfa", fontSize: "0.9rem" }}>✓ Tu es sur la liste. On te contacte en premier.</div>}
-          </div>
+          <CTA />
         </FadeIn>
       </section>
 
       {/* FOOTER */}
       <footer style={{ borderTop: "1px solid #0d0d18", padding: "2rem", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          <div style={{ width: 24, height: 24, borderRadius: 6, background: "linear-gradient(135deg,#6d28d9,#4f46e5)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.65rem", fontWeight: 800, fontFamily: "'Syne',sans-serif" }}>N</div>
+          <div style={{ width: 24, height: 24, borderRadius: 6, background: "linear-gradient(135deg,#4f46e5,#7c3aed)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Syne',sans-serif", fontWeight: 900, fontSize: "0.75rem", color: "white" }}>N</div>
           <span style={{ fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: "0.85rem", color: "#334155" }}>NEXORA</span>
         </div>
-        <p style={{ color: "#1e293b", fontSize: "0.72rem" }}>© 2026 Nexora · Finis le brouillard. Comprends tes décisions.</p>
+        <p style={{ color: "#1e293b", fontSize: "0.72rem" }}>© 2026 Nexora · Le premier système d'aide à la prise de décision pour traders.</p>
       </footer>
     </div>
   );
