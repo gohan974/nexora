@@ -221,8 +221,8 @@ export default function NexoraLanding() {
 
         <h1 style={{ fontFamily: "'Syne',sans-serif", fontSize: isMobile ? "2.2rem" : "4.4rem", fontWeight: 800, lineHeight: 1.15, letterSpacing: "-0.03em", maxWidth: 820, marginBottom: "1.5rem" }}>
           <span className="shimmer">Nexora apprend</span><br />
-          <span>de tes trades.</span><br />
-          <span>Et te rend </span>
+          <span style={{ color: "#e2e8f0" }}>de tes trades.</span><br />
+          <span style={{ color: "#e2e8f0" }}>Et te rend </span>
           <span style={{ background: "linear-gradient(135deg,#a78bfa,#6366f1)", backgroundClip: "text", WebkitBackgroundClip: "text", color: "transparent", WebkitTextFillColor: "transparent" }}>meilleur.</span>
         </h1>
 
