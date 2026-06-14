@@ -33,6 +33,23 @@ const FadeIn = ({ children, delay = 0, style = {} }) => {
   );
 };
 
+/* ─── Email capture (top-level so the input never loses focus on each keystroke) ─── */
+const CTA = ({ email, setEmail, submitted, handleSubmit, isMobile }) => (
+  <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", flexWrap: "wrap", justifyContent: "center" }}>
+    {!submitted ? <>
+      <input
+        style={{ background: "#0d0d18", border: "1px solid #1a1a2e", color: "#e2e8f0", padding: "0.9rem 1.2rem", borderRadius: 10, fontFamily: "'DM Sans',sans-serif", fontSize: "0.9rem", outline: "none", width: isMobile ? "100%" : 280 }}
+        type="email" placeholder="ton@email.com" value={email}
+        onChange={e => setEmail(e.target.value)}
+        onKeyDown={e => e.key === "Enter" && handleSubmit()}
+      />
+      <button onClick={handleSubmit} style={{ background: "linear-gradient(135deg,#6d28d9,#4f46e5)", color: "#fff", border: "none", padding: "0.9rem 2rem", borderRadius: 10, fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: "0.9rem", cursor: "pointer", width: isMobile ? "100%" : "auto" }}>
+        Rejoindre la liste →
+      </button>
+    </> : <div style={{ background: "rgba(109,40,217,.1)", border: "1px solid rgba(109,40,217,.3)", borderRadius: 10, padding: "0.9rem 2rem", color: "#a78bfa", fontSize: "0.9rem" }}>✓ Tu es sur la liste. On te contacte en premier.</div>}
+  </div>
+);
+
 /* ─── Steps indicator ─── */
 const StepsIndicator = ({ steps }) => {
   const [active, setActive] = useState(0);
@@ -120,7 +137,7 @@ export default function NexoraLanding() {
     document.title = "Nexora Bêta";
     const favicon = document.querySelector("link[rel~='icon']") || document.createElement("link");
     favicon.rel = "icon";
-    favicon.href = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234f46e5'/><text y='.9em' font-size='75' font-family='Helvetica Neue,Arial,sans-serif' font-weight='900' fill='white' x='50%' text-anchor='middle' dominant-baseline='middle' dy='.1em'>N</text></svg>";
+    favicon.href = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234f46e5'/><text x='50' y='52' font-size='62' font-family='Arial,Helvetica,sans-serif' font-weight='900' fill='white' text-anchor='middle' dominant-baseline='central'>N</text></svg>";
     document.head.appendChild(favicon);
   }, []);
 
@@ -130,16 +147,17 @@ export default function NexoraLanding() {
     return () => window.removeEventListener("scroll", h);
   }, []);
 
-   const handleSubmit = async () => {
+  const handleSubmit = async () => {
     if (!email.includes("@")) return;
     setSubmitted(true);
-    try {
-      await fetch("https://api.brevo.com/v3/contacts", {
-        method: "POST",
-headers: { "api-key": import.meta.env.VITE_BREVO_API_KEY, "Content-Type": "application/json" },
-        body: JSON.stringify({ email, listIds: [2], updateEnabled: true })
-      });
-    } catch(e) { console.error(e); }
+    // Brevo integration placeholder — remplace YOUR_BREVO_LIST_ID et YOUR_BREVO_API_KEY
+    // try {
+    //   await fetch("https://api.brevo.com/v3/contacts", {
+    //     method: "POST",
+    //     headers: { "api-key": "YOUR_BREVO_API_KEY", "Content-Type": "application/json" },
+    //     body: JSON.stringify({ email, listIds: [YOUR_BREVO_LIST_ID], updateEnabled: true })
+    //   });
+    // } catch(e) { console.error(e); }
   };
 
   const pad = isMobile ? "1rem" : "2rem";
@@ -151,21 +169,7 @@ headers: { "api-key": import.meta.env.VITE_BREVO_API_KEY, "Content-Type": "appli
     card: { background: "#0d0d18", border: "1px solid #1a1a2e", borderRadius: 16, padding: "1.75rem" },
   };
 
-  const CTA = () => (
-    <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", flexWrap: "wrap", justifyContent: "center" }}>
-      {!submitted ? <>
-        <input
-          style={{ background: "#0d0d18", border: "1px solid #1a1a2e", color: "#e2e8f0", padding: "0.9rem 1.2rem", borderRadius: 10, fontFamily: "'DM Sans',sans-serif", fontSize: "0.9rem", outline: "none", width: isMobile ? "100%" : 280 }}
-          type="email" placeholder="ton@email.com" value={email}
-          onChange={e => setEmail(e.target.value)}
-          onKeyDown={e => e.key === "Enter" && handleSubmit()}
-        />
-        <button onClick={handleSubmit} style={{ background: "linear-gradient(135deg,#6d28d9,#4f46e5)", color: "#fff", border: "none", padding: "0.9rem 2rem", borderRadius: 10, fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: "0.9rem", cursor: "pointer", width: isMobile ? "100%" : "auto" }}>
-          Rejoindre la liste →
-        </button>
-      </> : <div style={{ background: "rgba(109,40,217,.1)", border: "1px solid rgba(109,40,217,.3)", borderRadius: 10, padding: "0.9rem 2rem", color: "#a78bfa", fontSize: "0.9rem" }}>✓ Tu es sur la liste. On te contacte en premier.</div>}
-    </div>
-  );
+  const CTA_PROPS = { email, setEmail, submitted, handleSubmit, isMobile };
 
   return (
     <div style={S.page}>
@@ -227,7 +231,7 @@ headers: { "api-key": import.meta.env.VITE_BREVO_API_KEY, "Content-Type": "appli
           Tu perds parce que personne ne t'a encore montré <strong style={{ color: "#94a3b8", fontWeight: 500 }}>comment tu décides vraiment.</strong>
         </p>
 
-        <CTA />
+        <CTA {...CTA_PROPS} />
         <p style={{ color: "#1e293b", fontSize: "0.72rem", marginTop: "1rem" }}>Pas de spam. Pas de CB. Accès early bird offert aux 100 premiers.</p>
 
         <div style={{ display: "flex", gap: isMobile ? "1.5rem" : "3rem", marginTop: "4rem", borderTop: "1px solid #0d0d18", paddingTop: "2.5rem", flexWrap: "wrap", justifyContent: "center" }}>
@@ -593,7 +597,7 @@ headers: { "api-key": import.meta.env.VITE_BREVO_API_KEY, "Content-Type": "appli
             <span style={{ background: "linear-gradient(135deg,#a78bfa,#6366f1)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>comment tu décides vraiment ?</span>
           </h2>
           <p style={{ color: "#475569", marginBottom: "2.5rem", fontSize: "0.95rem" }}>Accès early bird offert aux 100 premiers.</p>
-          <CTA />
+          <CTA {...CTA_PROPS} />
         </FadeIn>
       </section>
 
