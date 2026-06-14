@@ -253,7 +253,7 @@ export default function NexoraLanding() {
         <FadeIn>
           <div style={{ background: "#0d0d18", border: "1px solid #1a1a2e", borderLeft: "3px solid #6d28d9", borderRadius: 20, padding: isMobile ? "1.75rem" : "3rem" }}>
             <p style={S.label}>LE VRAI PROBLÈME</p>
-            <h2 style={S.h2}>Tu as accès à tout.<br /><span style={{ color: "#334155" }}>Et tu perds encore.</span></h2>
+            <h2 style={S.h2}><span style={{ color: "#e2e8f0" }}>Tu as accès à tout.</span><br /><span style={{ color: "#334155" }}>Et tu perds encore.</span></h2>
             <p style={{ color: "#475569", lineHeight: 1.85, fontSize: "0.95rem" }}>
               Formations, indicateurs, signaux, groupes Telegram.<br />
               Le problème n'est pas le manque d'information.<br />
@@ -267,7 +267,7 @@ export default function NexoraLanding() {
       <section style={S.section()}>
         <FadeIn style={{ textAlign: "center", marginBottom: "3rem" }}>
           <p style={S.label}>FONCTIONNALITÉS</p>
-          <h2 style={S.h2}>Tout ce dont tu as besoin.<br /><span style={{ color: "#334155" }}>Rien de superflu.</span></h2>
+          <h2 style={S.h2}><span style={{ color: "#e2e8f0" }}>Tout ce dont tu as besoin.</span><br /><span style={{ color: "#334155" }}>Rien de superflu.</span></h2>
         </FadeIn>
         <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(2,1fr)", gap: "1rem" }}>
           {features.map((f, i) => (
@@ -286,7 +286,7 @@ export default function NexoraLanding() {
       <section style={S.section(600)}>
         <FadeIn>
           <p style={S.label}>COMMENT ÇA MARCHE</p>
-          <h2 style={{ ...S.h2, marginBottom: "3rem" }}>Simple. Rapide.<br /><span style={{ color: "#334155" }}>Puissant.</span></h2>
+          <h2 style={{ ...S.h2, marginBottom: "3rem" }}><span style={{ color: "#e2e8f0" }}>Simple. Rapide.</span><br /><span style={{ color: "#334155" }}>Puissant.</span></h2>
         </FadeIn>
         <StepsIndicator steps={steps} />
       </section>
@@ -295,7 +295,7 @@ export default function NexoraLanding() {
       <section style={S.section(960)}>
         <FadeIn style={{ textAlign: "center", marginBottom: "3rem" }}>
           <p style={S.label}>AVANT TOUT</p>
-          <h2 style={S.h2}>Nexora commence<br /><span style={{ color: "#334155" }}>par te connaître.</span></h2>
+          <h2 style={S.h2}><span style={{ color: "#e2e8f0" }}>Nexora commence</span><br /><span style={{ color: "#334155" }}>par te connaître.</span></h2>
           <p style={{ color: "#475569", fontSize: "0.9rem", maxWidth: 520, margin: "0 auto" }}>Avant d'analyser tes trades, Nexora construit ton profil décisionnel complet. C'est ce qui rend chaque analyse unique.</p>
         </FadeIn>
 
@@ -333,7 +333,7 @@ export default function NexoraLanding() {
       <section style={S.section(960)}>
         <FadeIn style={{ textAlign: "center", marginBottom: "3rem" }}>
           <p style={S.label}>LE JOURNAL — 30 SECONDES</p>
-          <h2 style={S.h2}>Tu remplis ça.<br /><span style={{ color: "#334155" }}>Nexora fait le reste.</span></h2>
+          <h2 style={S.h2}><span style={{ color: "#e2e8f0" }}>Tu remplis ça.</span><br /><span style={{ color: "#334155" }}>Nexora fait le reste.</span></h2>
           <p style={{ color: "#475569", fontSize: "0.9rem" }}>Voici exactement ce qu'on te demande après chaque trade.</p>
         </FadeIn>
 
@@ -417,7 +417,7 @@ export default function NexoraLanding() {
       <section style={S.section(960)}>
         <FadeIn style={{ textAlign: "center", marginBottom: "3rem" }}>
           <p style={S.label}>APERÇU DU PRODUIT</p>
-          <h2 style={S.h2}>Finis le brouillard.<br /><span style={{ background: "linear-gradient(135deg,#a78bfa,#6366f1)", backgroundClip: "text", WebkitBackgroundClip: "text", color: "transparent", WebkitTextFillColor: "transparent" }}>Comprends tes décisions.</span></h2>
+          <h2 style={S.h2}><span style={{ color: "#e2e8f0" }}>Finis le brouillard.</span><br /><span style={{ background: "linear-gradient(135deg,#a78bfa,#6366f1)", backgroundClip: "text", WebkitBackgroundClip: "text", color: "transparent", WebkitTextFillColor: "transparent" }}>Comprends tes décisions.</span></h2>
           <p style={{ color: "#475569", fontSize: "0.9rem" }}>Pas des signaux. Pas des prédictions. Un miroir de toi.</p>
         </FadeIn>
 
@@ -553,7 +553,7 @@ export default function NexoraLanding() {
           <div style={{ background: "#0d0d18", border: "1px solid #1a1a2e", borderRadius: 20, padding: isMobile ? "1.75rem" : "3rem", textAlign: "center" }}>
             <p style={{ ...S.label, textAlign: "center" }}>CE QUE NEXORA RÉVÈLE</p>
             <h2 style={{ ...S.h2, marginBottom: "2rem" }}>
-              "Tu pensais être mauvais en trading."<br />
+              <span style={{ color: "#e2e8f0" }}>"Tu pensais être mauvais en trading."</span><br />
               <span style={{ color: "#475569" }}>"En réalité, tu trades bien…</span><br />
               <span style={{ background: "linear-gradient(135deg,#a78bfa,#6366f1)", backgroundClip: "text", WebkitBackgroundClip: "text", color: "transparent", WebkitTextFillColor: "transparent" }}>mais au mauvais moment."</span>
             </h2>
@@ -593,7 +593,7 @@ export default function NexoraLanding() {
         <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: 600, height: 300, borderRadius: "50%", background: "radial-gradient(circle,rgba(109,40,217,.07) 0%,transparent 70%)", pointerEvents: "none" }} />
         <FadeIn>
           <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: isMobile ? "1.9rem" : "3rem", fontWeight: 800, letterSpacing: "-0.03em", marginBottom: "1rem", position: "relative" }}>
-            Prêt à comprendre<br />
+            <span style={{ color: "#e2e8f0" }}>Prêt à comprendre</span><br />
             <span style={{ background: "linear-gradient(135deg,#a78bfa,#6366f1)", backgroundClip: "text", WebkitBackgroundClip: "text", color: "transparent", WebkitTextFillColor: "transparent" }}>comment tu décides vraiment ?</span>
           </h2>
           <p style={{ color: "#475569", marginBottom: "2.5rem", fontSize: "0.95rem" }}>Accès early bird offert aux 100 premiers.</p>
