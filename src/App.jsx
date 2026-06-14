@@ -165,7 +165,7 @@ export default function NexoraLanding() {
     page: { background: "#07070d", color: "#e2e8f0", fontFamily: "'DM Sans',sans-serif", minHeight: "100vh", overflowX: "hidden" },
     section: (mw = 1100) => ({ padding: isMobile ? "3rem 1rem" : "5rem 2rem", maxWidth: mw, margin: "0 auto" }),
     label: { fontSize: "0.72rem", color: "#6d28d9", letterSpacing: "0.1em", fontWeight: 600, marginBottom: "0.6rem" },
-    h2: { fontFamily: "'Syne',sans-serif", fontSize: isMobile ? "clamp(1.5rem,6vw,2rem)" : "clamp(1.8rem,3vw,2.6rem)", fontWeight: 700, letterSpacing: "-0.02em", marginBottom: "1rem" },
+    h2: { fontFamily: "'Syne',sans-serif", fontSize: isMobile ? "1.7rem" : "2.4rem", fontWeight: 700, letterSpacing: "-0.02em", marginBottom: "1rem" },
     card: { background: "#0d0d18", border: "1px solid #1a1a2e", borderRadius: 16, padding: "1.75rem" },
   };
 
@@ -219,11 +219,11 @@ export default function NexoraLanding() {
           Le premier système d'aide à la prise de décision pour traders
         </p>
 
-        <h1 style={{ fontFamily: "'Syne',sans-serif", fontSize: isMobile ? "clamp(2rem,8vw,3rem)" : "clamp(2.8rem,6vw,5.5rem)", fontWeight: 800, lineHeight: 1.08, letterSpacing: "-0.03em", maxWidth: 820, marginBottom: "1.5rem" }}>
+        <h1 style={{ fontFamily: "'Syne',sans-serif", fontSize: isMobile ? "2.2rem" : "4.4rem", fontWeight: 800, lineHeight: 1.15, letterSpacing: "-0.03em", maxWidth: 820, marginBottom: "1.5rem" }}>
           <span className="shimmer">Nexora apprend</span><br />
           <span>de tes trades.</span><br />
           <span>Et te rend </span>
-          <span style={{ background: "linear-gradient(135deg,#a78bfa,#6366f1)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>meilleur.</span>
+          <span style={{ background: "linear-gradient(135deg,#a78bfa,#6366f1)", backgroundClip: "text", WebkitBackgroundClip: "text", color: "transparent", WebkitTextFillColor: "transparent" }}>meilleur.</span>
         </h1>
 
         <p style={{ fontSize: isMobile ? "0.9rem" : "1.05rem", color: "#475569", maxWidth: 500, lineHeight: 1.75, marginBottom: "3rem", fontWeight: 300 }}>
@@ -417,7 +417,7 @@ export default function NexoraLanding() {
       <section style={S.section(960)}>
         <FadeIn style={{ textAlign: "center", marginBottom: "3rem" }}>
           <p style={S.label}>APERÇU DU PRODUIT</p>
-          <h2 style={S.h2}>Finis le brouillard.<br /><span style={{ background: "linear-gradient(135deg,#a78bfa,#6366f1)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Comprends tes décisions.</span></h2>
+          <h2 style={S.h2}>Finis le brouillard.<br /><span style={{ background: "linear-gradient(135deg,#a78bfa,#6366f1)", backgroundClip: "text", WebkitBackgroundClip: "text", color: "transparent", WebkitTextFillColor: "transparent" }}>Comprends tes décisions.</span></h2>
           <p style={{ color: "#475569", fontSize: "0.9rem" }}>Pas des signaux. Pas des prédictions. Un miroir de toi.</p>
         </FadeIn>
 
@@ -555,7 +555,7 @@ export default function NexoraLanding() {
             <h2 style={{ ...S.h2, marginBottom: "2rem" }}>
               "Tu pensais être mauvais en trading."<br />
               <span style={{ color: "#475569" }}>"En réalité, tu trades bien…</span><br />
-              <span style={{ background: "linear-gradient(135deg,#a78bfa,#6366f1)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>mais au mauvais moment."</span>
+              <span style={{ background: "linear-gradient(135deg,#a78bfa,#6366f1)", backgroundClip: "text", WebkitBackgroundClip: "text", color: "transparent", WebkitTextFillColor: "transparent" }}>mais au mauvais moment."</span>
             </h2>
             <p style={{ color: "#475569", fontSize: "0.9rem", lineHeight: 1.8, maxWidth: 520, margin: "0 auto" }}>
               83% des pertes viennent de 2 ou 3 situations récurrentes que tu ne vois pas.<br />
@@ -592,9 +592,9 @@ export default function NexoraLanding() {
       <section style={{ padding: isMobile ? "4rem 1.25rem 6rem" : "6rem 2rem 8rem", textAlign: "center", position: "relative" }}>
         <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: 600, height: 300, borderRadius: "50%", background: "radial-gradient(circle,rgba(109,40,217,.07) 0%,transparent 70%)", pointerEvents: "none" }} />
         <FadeIn>
-          <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: isMobile ? "clamp(1.8rem,6vw,2.5rem)" : "clamp(2rem,4vw,3.5rem)", fontWeight: 800, letterSpacing: "-0.03em", marginBottom: "1rem", position: "relative" }}>
+          <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: isMobile ? "1.9rem" : "3rem", fontWeight: 800, letterSpacing: "-0.03em", marginBottom: "1rem", position: "relative" }}>
             Prêt à comprendre<br />
-            <span style={{ background: "linear-gradient(135deg,#a78bfa,#6366f1)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>comment tu décides vraiment ?</span>
+            <span style={{ background: "linear-gradient(135deg,#a78bfa,#6366f1)", backgroundClip: "text", WebkitBackgroundClip: "text", color: "transparent", WebkitTextFillColor: "transparent" }}>comment tu décides vraiment ?</span>
           </h2>
           <p style={{ color: "#475569", marginBottom: "2.5rem", fontSize: "0.95rem" }}>Accès early bird offert aux 100 premiers.</p>
           <CTA {...CTA_PROPS} />
