@@ -136,7 +136,7 @@ export default function NexoraLanding() {
     try {
       await fetch("https://api.brevo.com/v3/contacts", {
         method: "POST",
-        headers: { "api-key": "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", "Content-Type": "application/json" },
+headers: { "api-key": import.meta.env.VITE_BREVO_API_KEY, "Content-Type": "application/json" },
         body: JSON.stringify({ email, listIds: [2], updateEnabled: true })
       });
     } catch(e) { console.error(e); }
