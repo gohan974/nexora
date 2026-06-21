@@ -509,20 +509,37 @@ export default function NexoraLanding() {
 
         <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1.4fr 1fr", gap: "1.25rem", marginBottom: "1.25rem" }}>
           <FadeIn delay={0.15}>
-            <div style={{ background: "#0d0d18", border: "1px solid #1a1a2e", borderRadius: 20, padding: "1.75rem" }}>
-              <p style={{ fontSize: "0.68rem", color: "#6d28d9", letterSpacing: "0.08em", fontWeight: 600, marginBottom: "0.3rem" }}>PROGRESSION DÉCISIONNELLE</p>
-              <p style={{ fontSize: "0.8rem", color: "#334155", marginBottom: "1.5rem" }}>Qualité de tes décisions — pas de ton PnL</p>
-              <ResponsiveContainer width="100%" height={140}>
-                <LineChart data={decisionData}>
-                  <XAxis dataKey="week" tick={{ fill: "#334155", fontSize: 11 }} axisLine={false} tickLine={false} />
-                  <YAxis domain={[40, 90]} tick={{ fill: "#334155", fontSize: 11 }} axisLine={false} tickLine={false} width={28} />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Line type="monotone" dataKey="score" stroke="#6d28d9" strokeWidth={2.5} dot={{ fill: "#6d28d9", r: 3, strokeWidth: 0 }} activeDot={{ r: 5, fill: "#a78bfa" }} />
-                </LineChart>
-              </ResponsiveContainer>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.75rem" }}>
-                <span style={{ fontSize: "1.1rem", color: "#34d399", fontFamily: "'Syne',sans-serif", fontWeight: 800 }}>+75%</span>
-                <span style={{ fontSize: "0.78rem", color: "#334155" }}>d'amélioration sur 8 semaines</span>
+            <div style={{ background: "#0d0d18", border: "1px solid #1a1a2e", borderRadius: 20, padding: "1.75rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+              {/* Potentiel du jour */}
+              <div>
+                <p style={{ fontSize: "0.68rem", color: "#6d28d9", letterSpacing: "0.08em", fontWeight: 600, marginBottom: "1rem" }}>POTENTIEL DU JOUR</p>
+                <div style={{ display: "flex", alignItems: "center", gap: "1.25rem" }}>
+                  <div style={{ position: "relative", width: 92, height: 92, flexShrink: 0 }}>
+                    <svg width="92" height="92" style={{ transform: "rotate(-90deg)" }}>
+                      <circle cx="46" cy="46" r="40" fill="none" stroke="#1a1a2e" strokeWidth="7" />
+                      <circle cx="46" cy="46" r="40" fill="none" stroke="url(#grad)" strokeWidth="7" strokeLinecap="round" strokeDasharray={`${2 * Math.PI * 40 * 0.73} ${2 * Math.PI * 40}`} />
+                      <defs>
+                        <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stopColor="#a78bfa" />
+                          <stop offset="100%" stopColor="#6d28d9" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                    <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                      <span style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: "1.4rem", color: "#e2e8f0" }}>73%</span>
+                    </div>
+                  </div>
+                  <div>
+                    <p style={{ fontSize: "0.85rem", color: "#e2e8f0", fontWeight: 600, marginBottom: "0.35rem" }}>Bonnes conditions</p>
+                    <p style={{ fontSize: "0.78rem", color: "#475569", lineHeight: 1.6 }}>Jeudi matin, marché calme, tu es dans ton contexte optimal. C'est un bon jour pour décider.</p>
+                  </div>
+                </div>
+              </div>
+              <div style={{ height: 1, background: "#1a1a2e" }} />
+              {/* Point d'attention */}
+              <div style={{ background: "rgba(234,179,8,.06)", border: "1px solid rgba(234,179,8,.2)", borderRadius: 12, padding: "0.9rem 1rem" }}>
+                <p style={{ fontSize: "0.66rem", color: "#fbbf24", fontWeight: 600, marginBottom: "0.3rem", letterSpacing: "0.06em" }}>POINT D'ATTENTION DU JOUR</p>
+                <p style={{ fontSize: "0.8rem", color: "#fde68a", lineHeight: 1.6 }}>Tu sors en moyenne 40% trop tôt sur tes trades gagnants — environ 60€ de profit non réalisé.</p>
               </div>
             </div>
           </FadeIn>
@@ -585,6 +602,34 @@ export default function NexoraLanding() {
                   <span style={{ fontSize: "0.7rem", color: "#334155" }}>{x.l}</span>
                 </div>
               ))}
+            </div>
+          </div>
+        </FadeIn>
+
+        <FadeIn delay={0.3} style={{ marginTop: "1.25rem" }}>
+          <div style={{ background: "#0d0d18", border: "1px solid #1a1a2e", borderRadius: 20, padding: "1.75rem" }}>
+            <p style={{ fontSize: "0.68rem", color: "#6d28d9", letterSpacing: "0.08em", fontWeight: 600, marginBottom: "0.3rem" }}>GESTION DU RISQUE</p>
+            <p style={{ fontSize: "0.8rem", color: "#334155", marginBottom: "1.5rem" }}>Tes derniers trades — ratio risque/récompense et respect du plan</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.7rem" }}>
+              {[
+                { pair: "EUR/USD", rr: "1:3.2", plan: "Respecté", ok: true, w: "92%" },
+                { pair: "XAU/USD", rr: "1:2.1", plan: "Respecté", ok: true, w: "78%" },
+                { pair: "GBP/USD", rr: "1:0.8", plan: "SL ignoré", ok: false, w: "30%" },
+                { pair: "US30", rr: "1:2.6", plan: "Respecté", ok: true, w: "84%" },
+              ].map((t, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.85rem" }}>
+                  <span style={{ fontSize: "0.78rem", color: "#cbd5e1", fontWeight: 500, width: 72, flexShrink: 0 }}>{t.pair}</span>
+                  <div style={{ flex: 1, height: 8, background: "#12121f", borderRadius: 4, overflow: "hidden" }}>
+                    <div style={{ height: "100%", width: t.w, background: t.ok ? "linear-gradient(90deg,#6d28d9,#a78bfa)" : "linear-gradient(90deg,#7f1d1d,#f87171)", borderRadius: 4 }} />
+                  </div>
+                  <span style={{ fontSize: "0.74rem", color: "#94a3b8", fontFamily: "'Syne',sans-serif", fontWeight: 700, width: 48, flexShrink: 0, textAlign: "right" }}>{t.rr}</span>
+                  <span style={{ fontSize: "0.66rem", color: t.ok ? "#34d399" : "#f87171", fontWeight: 600, width: 78, flexShrink: 0, textAlign: "right" }}>{t.plan}</span>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "1.25rem", paddingTop: "1rem", borderTop: "1px solid #1a1a2e" }}>
+              <span style={{ fontSize: "1.1rem", color: "#a78bfa", fontFamily: "'Syne',sans-serif", fontWeight: 800 }}>3/4</span>
+              <span style={{ fontSize: "0.78rem", color: "#475569" }}>trades dans les règles de ton plan cette semaine</span>
             </div>
           </div>
         </FadeIn>
