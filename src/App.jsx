@@ -13,24 +13,45 @@ const useIsMobile = () => {
 };
 
 /* ─── InView ─── */
-const useInView = () => {
+const useInView = (threshold = 0.1) => {
   const ref = useRef(null);
   const [inView, setInView] = useState(false);
   useEffect(() => {
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setInView(true); }, { threshold: 0.1 });
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setInView(true); }, { threshold });
     if (ref.current) obs.observe(ref.current);
     return () => obs.disconnect();
-  }, []);
+  }, [threshold]);
   return [ref, inView];
 };
 
-const FadeIn = ({ children, delay = 0, style = {} }) => {
+const FadeIn = ({ children, delay = 0, style = {}, from = "up" }) => {
   const [ref, inView] = useInView();
+  const offset = from === "up" ? "translateY(28px)" : from === "scale" ? "scale(0.96)" : "translateY(28px)";
   return (
-    <div ref={ref} style={{ opacity: inView ? 1 : 0, transform: inView ? "translateY(0)" : "translateY(24px)", transition: `opacity 0.65s ease ${delay}s, transform 0.65s ease ${delay}s`, ...style }}>
+    <div ref={ref} style={{ opacity: inView ? 1 : 0, transform: inView ? "translateY(0) scale(1)" : offset, filter: inView ? "blur(0)" : "blur(6px)", transition: `opacity 0.7s cubic-bezier(.16,1,.3,1) ${delay}s, transform 0.7s cubic-bezier(.16,1,.3,1) ${delay}s, filter 0.7s ease ${delay}s`, ...style }}>
       {children}
     </div>
   );
+};
+
+/* ─── Count-up (chiffres qui s'incrémentent à l'apparition) ─── */
+const CountUp = ({ target, duration = 1400, suffix = "", style = {} }) => {
+  const [ref, inView] = useInView(0.5);
+  const [val, setVal] = useState(0);
+  useEffect(() => {
+    if (!inView) return;
+    let start = null;
+    const step = ts => {
+      if (!start) start = ts;
+      const p = Math.min((ts - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setVal(Math.round(eased * target));
+      if (p < 1) requestAnimationFrame(step);
+    };
+    const raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [inView, target, duration]);
+  return <span ref={ref} style={style}>{val}{suffix}</span>;
 };
 
 /* ─── Email capture ─── */
@@ -43,7 +64,7 @@ const CTA = ({ email, setEmail, submitted, handleSubmit, isMobile }) => (
         onChange={e => setEmail(e.target.value)}
         onKeyDown={e => e.key === "Enter" && handleSubmit()}
       />
-      <button onClick={handleSubmit} style={{ background: "linear-gradient(135deg,#6d28d9,#4f46e5)", color: "#fff", border: "none", padding: "0.9rem 2rem", borderRadius: 10, fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: "0.9rem", cursor: "pointer", width: isMobile ? "100%" : "auto" }}>
+      <button onClick={handleSubmit} className="grad-btn" style={{ color: "#fff", border: "none", padding: "0.9rem 2rem", borderRadius: 10, fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: "0.9rem", cursor: "pointer", width: isMobile ? "100%" : "auto" }}>
         Rejoindre la waitlist →
       </button>
     </> : <div style={{ background: "rgba(109,40,217,.1)", border: "1px solid rgba(109,40,217,.3)", borderRadius: 10, padding: "0.9rem 2rem", color: "#a78bfa", fontSize: "0.9rem" }}>✓ Tu es sur la liste. On te contacte en premier.</div>}
@@ -140,15 +161,29 @@ export default function NexoraLanding() {
         *{box-sizing:border-box;margin:0;padding:0}
         ::selection{background:#6d28d9;color:#fff}
         ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:#07070d}::-webkit-scrollbar-thumb{background:#3b1f6e;border-radius:2px}
-        .fcard{background:#0d0d18;border:1px solid #1a1a2e;border-radius:16px;padding:1.5rem;transition:all .3s;height:100%}
-        .fcard:hover{border-color:#3b1f6e;transform:translateY(-4px);box-shadow:0 20px 60px rgba(109,40,217,.12)}
-        .tcard{background:#0d0d18;border:1px solid #1a1a2e;border-radius:14px;padding:1.5rem}
-        .glow{width:6px;height:6px;border-radius:50%;background:#6d28d9;box-shadow:0 0 12px #6d28d9;display:inline-block}
-        @keyframes pulse-ring{0%,100%{transform:scale(.95);opacity:.5}50%{transform:scale(1.05);opacity:.25}}
+        .fcard{background:#0d0d18;border:1px solid #1a1a2e;border-radius:16px;padding:1.5rem;transition:transform .35s cubic-bezier(.16,1,.3,1),border-color .35s,box-shadow .35s;height:100%}
+        .fcard:hover{border-color:#6d28d9;transform:translateY(-6px);box-shadow:0 24px 70px rgba(109,40,217,.18)}
+        .tcard{background:#0d0d18;border:1px solid #1a1a2e;border-radius:14px;padding:1.5rem;transition:transform .35s cubic-bezier(.16,1,.3,1),border-color .35s}
+        .tcard:hover{border-color:#3b1f6e;transform:translateY(-4px)}
+        .glow{width:6px;height:6px;border-radius:50%;background:#6d28d9;box-shadow:0 0 12px #6d28d9;display:inline-block;animation:dot-pulse 2s ease-in-out infinite}
+        @keyframes dot-pulse{0%,100%{box-shadow:0 0 8px #6d28d9;opacity:1}50%{box-shadow:0 0 18px #a78bfa;opacity:.7}}
+        @keyframes pulse-ring{0%,100%{transform:scale(.95);opacity:.5}50%{transform:scale(1.08);opacity:.28}}
+        @keyframes pulse-ring-2{0%,100%{transform:scale(1.05);opacity:.35}50%{transform:scale(.92);opacity:.18}}
         @keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+        @keyframes gradient-shift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+        @keyframes hero-rise{0%{opacity:0;transform:translateY(40px);filter:blur(10px)}100%{opacity:1;transform:translateY(0);filter:blur(0)}}
+        @keyframes badge-fade{0%{opacity:0;transform:translateY(-12px)}100%{opacity:1;transform:translateY(0)}}
+        @keyframes float-slow{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
         .shimmer{background:linear-gradient(90deg,#e2e8f0 0%,#a78bfa 40%,#e2e8f0 60%,#e2e8f0 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 4s linear infinite}
+        .hero-badge{animation:badge-fade .8s cubic-bezier(.16,1,.3,1) both}
+        .hero-sup{animation:hero-rise .9s cubic-bezier(.16,1,.3,1) .1s both}
+        .hero-title{animation:hero-rise 1s cubic-bezier(.16,1,.3,1) .22s both}
+        .hero-sub{animation:hero-rise 1s cubic-bezier(.16,1,.3,1) .36s both}
+        .hero-cta{animation:hero-rise 1s cubic-bezier(.16,1,.3,1) .5s both}
+        .grad-btn{background:linear-gradient(135deg,#6d28d9,#4f46e5,#7c3aed);background-size:200% 200%;animation:gradient-shift 5s ease infinite}
         input:focus{border-color:#6d28d9 !important}
         input::placeholder{color:#1e293b}
+        @media (prefers-reduced-motion:reduce){*{animation:none !important}}
       `}</style>
 
       {/* NAV */}
@@ -163,43 +198,48 @@ export default function NexoraLanding() {
 
       {/* HERO */}
       <section style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: isMobile ? "7rem 1.25rem 3rem" : "8rem 2rem 4rem", position: "relative", textAlign: "center" }}>
-        <div style={{ position: "absolute", top: "20%", left: "10%", width: isMobile ? 200 : 500, height: isMobile ? 200 : 500, borderRadius: "50%", background: "radial-gradient(circle,rgba(109,40,217,.1) 0%,transparent 70%)", animation: "pulse-ring 7s ease-in-out infinite", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", top: "18%", left: "8%", width: isMobile ? 220 : 520, height: isMobile ? 220 : 520, borderRadius: "50%", background: "radial-gradient(circle,rgba(109,40,217,.12) 0%,transparent 70%)", animation: "pulse-ring 7s ease-in-out infinite", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", bottom: "12%", right: "6%", width: isMobile ? 180 : 420, height: isMobile ? 180 : 420, borderRadius: "50%", background: "radial-gradient(circle,rgba(79,70,229,.1) 0%,transparent 70%)", animation: "pulse-ring-2 9s ease-in-out infinite", pointerEvents: "none" }} />
 
-        <div style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", background: "rgba(109,40,217,.1)", border: "1px solid rgba(109,40,217,.3)", borderRadius: 20, padding: "0.4rem 1rem", fontSize: "0.72rem", color: "#a78bfa", fontWeight: 500, letterSpacing: "0.06em", marginBottom: "2rem" }}>
+        <div className="hero-badge" style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", background: "rgba(109,40,217,.1)", border: "1px solid rgba(109,40,217,.3)", borderRadius: 20, padding: "0.4rem 1rem", fontSize: "0.72rem", color: "#a78bfa", fontWeight: 500, letterSpacing: "0.06em", marginBottom: "2rem" }}>
           <span className="glow" /> ACCÈS ANTICIPÉ · 100 PLACES
         </div>
 
-        <p style={{ fontSize: isMobile ? "0.75rem" : "0.85rem", color: "#6d28d9", fontWeight: 600, letterSpacing: "0.08em", marginBottom: "1rem", textTransform: "uppercase" }}>
+        <p className="hero-sup" style={{ fontSize: isMobile ? "0.75rem" : "0.85rem", color: "#6d28d9", fontWeight: 600, letterSpacing: "0.08em", marginBottom: "1rem", textTransform: "uppercase" }}>
           Le premier système d'aide à la prise de décision pour traders
         </p>
 
-        <h1 style={{ fontFamily: "'Syne',sans-serif", fontSize: isMobile ? "2.2rem" : "4.4rem", fontWeight: 800, lineHeight: 1.15, letterSpacing: "-0.03em", maxWidth: 820, marginBottom: "1.5rem" }}>
+        <h1 className="hero-title" style={{ fontFamily: "'Syne',sans-serif", fontSize: isMobile ? "2.2rem" : "4.4rem", fontWeight: 800, lineHeight: 1.15, letterSpacing: "-0.03em", maxWidth: 820, marginBottom: "1.5rem" }}>
           <span style={{ color: "#e2e8f0" }}>Arrête de</span>{" "}
           <span className="shimmer">subir tes trades.</span><br />
           <span style={{ color: "#e2e8f0" }}>Commence à </span>
           <span style={{ background: "linear-gradient(135deg,#a78bfa,#6366f1)", backgroundClip: "text", WebkitBackgroundClip: "text", color: "transparent", WebkitTextFillColor: "transparent" }}>les décider.</span>
         </h1>
 
-        <p style={{ fontSize: isMobile ? "0.9rem" : "1.05rem", color: "#475569", maxWidth: 520, lineHeight: 1.75, marginBottom: "3rem", fontWeight: 300 }}>
+        <p className="hero-sub" style={{ fontSize: isMobile ? "0.9rem" : "1.05rem", color: "#475569", maxWidth: 520, lineHeight: 1.75, marginBottom: "3rem", fontWeight: 300 }}>
           Tu sais analyser les marchés.<br />
           Ton problème, c'est <strong style={{ color: "#94a3b8", fontWeight: 500 }}>l'exécution.</strong> Nexora intervient au moment de vérité — avant que tu appuies sur le bouton.
         </p>
 
-        <CTA {...CTA_PROPS} />
-        <p style={{ color: "#1e293b", fontSize: "0.72rem", marginTop: "1rem" }}>Pas de spam. Pas de CB. Accès early bird offert aux 100 premiers.</p>
-
-        <div style={{ display: "flex", gap: isMobile ? "1.5rem" : "3rem", marginTop: "4rem", borderTop: "1px solid #0d0d18", paddingTop: "2.5rem", flexWrap: "wrap", justifyContent: "center" }}>
-          {[
-            { n: "Décision", label: "pas prédiction. Nexora t'aide à décider, jamais à deviner." },
-            { n: "0", label: "signal. 0 promesse de gain. 100% basé sur toi et ton plan." },
-            { n: "1", label: "seul objectif — maîtriser tes décisions de trading." },
-          ].map((s, i) => (
-            <div key={i} style={{ textAlign: "center" }}>
-              <div style={{ fontFamily: "'Syne',sans-serif", fontSize: isMobile ? "1.5rem" : "2rem", fontWeight: 800, color: "#a78bfa" }}>{s.n}</div>
-              <div style={{ color: "#334155", fontSize: "0.72rem", maxWidth: 140, lineHeight: 1.5 }}>{s.label}</div>
-            </div>
-          ))}
+        <div className="hero-cta">
+          <CTA {...CTA_PROPS} />
+          <p style={{ color: "#1e293b", fontSize: "0.72rem", marginTop: "1rem" }}>Pas de spam. Pas de CB. Accès early bird offert aux 100 premiers.</p>
         </div>
+
+        <FadeIn delay={0.3} style={{ marginTop: "4rem", borderTop: "1px solid #12121f", paddingTop: "2.5rem", width: "100%", maxWidth: 720 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: isMobile ? "0.5rem" : "1.5rem" }}>
+            {[
+              { big: "Décision", small: "pas prédiction. Nexora t'aide à décider, jamais à deviner." },
+              { big: "0", small: "promesse de gain. 100% basé sur toi et ton plan." },
+              { big: "1", small: "seul objectif : maîtriser tes décisions." },
+            ].map((s, i) => (
+              <div key={i} style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <div style={{ fontFamily: "'Syne',sans-serif", fontSize: isMobile ? "1.4rem" : "2.2rem", fontWeight: 800, color: "#a78bfa", lineHeight: 1.1, marginBottom: "0.5rem", minHeight: isMobile ? "1.9rem" : "2.6rem", display: "flex", alignItems: "center" }}>{s.big}</div>
+                <div style={{ color: "#475569", fontSize: isMobile ? "0.66rem" : "0.74rem", lineHeight: 1.5, maxWidth: 180 }}>{s.small}</div>
+              </div>
+            ))}
+          </div>
+        </FadeIn>
       </section>
 
       {/* PROBLEM */}
