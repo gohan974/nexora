@@ -33,7 +33,7 @@ const FadeIn = ({ children, delay = 0, style = {} }) => {
   );
 };
 
-/* ─── Email capture (top-level so the input never loses focus on each keystroke) ─── */
+/* ─── Email capture ─── */
 const CTA = ({ email, setEmail, submitted, handleSubmit, isMobile }) => (
   <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", flexWrap: "wrap", justifyContent: "center" }}>
     {!submitted ? <>
@@ -44,7 +44,7 @@ const CTA = ({ email, setEmail, submitted, handleSubmit, isMobile }) => (
         onKeyDown={e => e.key === "Enter" && handleSubmit()}
       />
       <button onClick={handleSubmit} style={{ background: "linear-gradient(135deg,#6d28d9,#4f46e5)", color: "#fff", border: "none", padding: "0.9rem 2rem", borderRadius: 10, fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: "0.9rem", cursor: "pointer", width: isMobile ? "100%" : "auto" }}>
-        Rejoindre la liste →
+        Rejoindre la waitlist →
       </button>
     </> : <div style={{ background: "rgba(109,40,217,.1)", border: "1px solid rgba(109,40,217,.3)", borderRadius: 10, padding: "0.9rem 2rem", color: "#a78bfa", fontSize: "0.9rem" }}>✓ Tu es sur la liste. On te contacte en premier.</div>}
   </div>
@@ -111,18 +111,18 @@ const scoreColor = v => {
   return { bg: "rgba(239,68,68,.12)", border: "rgba(239,68,68,.25)", text: "#f87171" };
 };
 
-/* ─── Data ─── */
+/* ─── Data mis à jour ─── */
 const features = [
-  { icon: "◎", title: "Journal en 30 secondes", desc: "Tu entres ton trade rapidement. Nexora fait le reste : analyse, pattern, recommandation." },
-  { icon: "⟁", title: "Tu vois tes erreurs invisibles", desc: "L'IA détecte ce que tu ne vois pas. Tes pires contextes. Tes patterns qui coûtent cher." },
-  { icon: "◈", title: "Finis le brouillard", desc: "Pas des signaux génériques. Un miroir de toi. De tes décisions. De ta progression réelle." },
-  { icon: "◷", title: "Score de décision", desc: "Nexora note la qualité de ta décision — pas ton résultat. Un bon trade mal décidé reste une erreur." },
+  { icon: "◎", title: "Check avant-trade", desc: "Avant d'appuyer sur le bouton, Nexora évalue ta décision. Pas après. Avant. C'est là que tout se joue." },
+  { icon: "◈", title: "Score de décision", desc: "Nexora note la qualité de ta décision — jamais ton résultat. Un trade gagnant mal décidé reste une erreur." },
+  { icon: "⟁", title: "Profil psychologique", desc: "Nexora détecte tes biais, tes pires contextes, tes patterns invisibles. Un miroir lucide, pas un outil d'analyse." },
+  { icon: "◷", title: "Journal 30 secondes", desc: "Tu entres ton trade rapidement. Nexora trace ta progression décisionnelle sur la durée." },
 ];
 
 const steps = [
-  { n: "01", title: "Tu entres ton trade", desc: "Actif, direction, résultat, état émotionnel, pourquoi tu as décidé. 30 secondes." },
-  { n: "02", title: "Nexora analyse", desc: "L'IA compare avec ton historique et détecte tes patterns de décision invisibles." },
-  { n: "03", title: "Tu te comprends enfin", desc: "Chaque jour Nexora te connaît mieux. Chaque recommandation te rapproche de ton état optimal." },
+  { n: "01", title: "Tu fais ton Check avant le trade", desc: "Tu décris ton setup, ton état, ta raison d'entrer. Nexora évalue si tu dois vraiment prendre ce trade." },
+  { n: "02", title: "Nexora score ta décision", desc: "Pas ton PnL. Ta décision. L'IA compare avec ton profil et détecte si tu respectes ton propre plan." },
+  { n: "03", title: "Tu vois tes patterns sur la durée", desc: "Semaine après semaine, Nexora te connaît mieux. Tu comprends enfin pourquoi tu te sabotes — et tu l'arrêtes." },
 ];
 
 /* ─── Main ─── */
@@ -133,8 +133,7 @@ export default function NexoraLanding() {
   const isMobile = useIsMobile();
 
   useEffect(() => {
-    // Update page title and favicon
-    document.title = "Nexora Bêta";
+    document.title = "Nexora — Arrête de subir tes trades";
     const favicon = document.querySelector("link[rel~='icon']") || document.createElement("link");
     favicon.rel = "icon";
     favicon.href = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234f46e5'/><text x='50' y='52' font-size='62' font-family='Arial,Helvetica,sans-serif' font-weight='900' fill='white' text-anchor='middle' dominant-baseline='central'>N</text></svg>";
@@ -150,14 +149,13 @@ export default function NexoraLanding() {
   const handleSubmit = async () => {
     if (!email.includes("@")) return;
     setSubmitted(true);
-    // Brevo integration placeholder — remplace YOUR_BREVO_LIST_ID et YOUR_BREVO_API_KEY
-    // try {
-    //   await fetch("https://api.brevo.com/v3/contacts", {
-    //     method: "POST",
-    //     headers: { "api-key": "YOUR_BREVO_API_KEY", "Content-Type": "application/json" },
-    //     body: JSON.stringify({ email, listIds: [YOUR_BREVO_LIST_ID], updateEnabled: true })
-    //   });
-    // } catch(e) { console.error(e); }
+    try {
+      await fetch("https://api.brevo.com/v3/contacts", {
+        method: "POST",
+        headers: { "api-key": import.meta.env.VITE_BREVO_API_KEY, "Content-Type": "application/json" },
+        body: JSON.stringify({ email, listIds: [2], updateEnabled: true })
+      });
+    } catch(e) { console.error(e); }
   };
 
   const pad = isMobile ? "1rem" : "2rem";
@@ -206,7 +204,7 @@ export default function NexoraLanding() {
         {isMobile && <button onClick={handleSubmit} style={{ background: "linear-gradient(135deg,#6d28d9,#4f46e5)", color: "#fff", border: "none", padding: "0.45rem 1rem", borderRadius: 8, fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: "0.75rem", cursor: "pointer" }}>Accès bêta</button>}
       </nav>
 
-      {/* HERO */}
+      {/* HERO — message mis à jour */}
       <section style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: isMobile ? "7rem 1.25rem 3rem" : "8rem 2rem 4rem", position: "relative", textAlign: "center" }}>
         <div style={{ position: "absolute", top: "20%", left: "10%", width: isMobile ? 200 : 500, height: isMobile ? 200 : 500, borderRadius: "50%", background: "radial-gradient(circle,rgba(109,40,217,.1) 0%,transparent 70%)", animation: "pulse-ring 7s ease-in-out infinite", pointerEvents: "none" }} />
 
@@ -214,21 +212,20 @@ export default function NexoraLanding() {
           <span className="glow" /> ACCÈS ANTICIPÉ · 100 PLACES
         </div>
 
-        {/* Tagline principale */}
         <p style={{ fontSize: isMobile ? "0.75rem" : "0.85rem", color: "#6d28d9", fontWeight: 600, letterSpacing: "0.08em", marginBottom: "1rem", textTransform: "uppercase" }}>
-          Le premier système d'aide à la prise de décision pour traders
+          L'outil qui intervient avant le trade — pas après
         </p>
 
         <h1 style={{ fontFamily: "'Syne',sans-serif", fontSize: isMobile ? "2.2rem" : "4.4rem", fontWeight: 800, lineHeight: 1.15, letterSpacing: "-0.03em", maxWidth: 820, marginBottom: "1.5rem" }}>
-          <span className="shimmer">Nexora apprend</span><br />
-          <span style={{ color: "#e2e8f0" }}>de tes trades.</span><br />
-          <span style={{ color: "#e2e8f0" }}>Et te rend </span>
-          <span style={{ background: "linear-gradient(135deg,#a78bfa,#6366f1)", backgroundClip: "text", WebkitBackgroundClip: "text", color: "transparent", WebkitTextFillColor: "transparent" }}>meilleur.</span>
+          <span style={{ color: "#e2e8f0" }}>Arrête de</span>{" "}
+          <span className="shimmer">subir tes trades.</span><br />
+          <span style={{ color: "#e2e8f0" }}>Commence à </span>
+          <span style={{ background: "linear-gradient(135deg,#a78bfa,#6366f1)", backgroundClip: "text", WebkitBackgroundClip: "text", color: "transparent", WebkitTextFillColor: "transparent" }}>les décider.</span>
         </h1>
 
-        <p style={{ fontSize: isMobile ? "0.9rem" : "1.05rem", color: "#475569", maxWidth: 500, lineHeight: 1.75, marginBottom: "3rem", fontWeight: 300 }}>
-          Tu ne perds pas par manque d'info.<br />
-          Tu perds parce que personne ne t'a encore montré <strong style={{ color: "#94a3b8", fontWeight: 500 }}>comment tu décides vraiment.</strong>
+        <p style={{ fontSize: isMobile ? "0.9rem" : "1.05rem", color: "#475569", maxWidth: 520, lineHeight: 1.75, marginBottom: "3rem", fontWeight: 300 }}>
+          Tu sais analyser les marchés.<br />
+          Ton problème, c'est <strong style={{ color: "#94a3b8", fontWeight: 500 }}>l'exécution.</strong> Nexora intervient au moment de vérité — avant que tu appuies sur le bouton.
         </p>
 
         <CTA {...CTA_PROPS} />
@@ -236,38 +233,38 @@ export default function NexoraLanding() {
 
         <div style={{ display: "flex", gap: isMobile ? "1.5rem" : "3rem", marginTop: "4rem", borderTop: "1px solid #0d0d18", paddingTop: "2.5rem", flexWrap: "wrap", justifyContent: "center" }}>
           {[
-            { n: "0", label: "signal. 0 prédiction. 100% basé sur toi." },
-            { n: "∞", label: "patterns comportementaux détectés" },
-            { n: "1", label: "seul objectif — améliorer tes décisions" },
+            { n: "Avant", label: "le trade — pas après. C'est là que tout se joue." },
+            { n: "0", label: "signal. 0 prédiction. 100% basé sur toi et ton plan." },
+            { n: "1", label: "seul objectif — maîtriser tes décisions de trading." },
           ].map((s, i) => (
             <div key={i} style={{ textAlign: "center" }}>
               <div style={{ fontFamily: "'Syne',sans-serif", fontSize: isMobile ? "1.5rem" : "2rem", fontWeight: 800, color: "#a78bfa" }}>{s.n}</div>
-              <div style={{ color: "#334155", fontSize: "0.72rem", maxWidth: 130, lineHeight: 1.5 }}>{s.label}</div>
+              <div style={{ color: "#334155", fontSize: "0.72rem", maxWidth: 140, lineHeight: 1.5 }}>{s.label}</div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* PROBLEM */}
+      {/* PROBLEM — mis à jour */}
       <section style={S.section(760)}>
         <FadeIn>
           <div style={{ background: "#0d0d18", border: "1px solid #1a1a2e", borderLeft: "3px solid #6d28d9", borderRadius: 20, padding: isMobile ? "1.75rem" : "3rem" }}>
             <p style={S.label}>LE VRAI PROBLÈME</p>
-            <h2 style={S.h2}><span style={{ color: "#e2e8f0" }}>Tu as accès à tout.</span><br /><span style={{ color: "#334155" }}>Et tu perds encore.</span></h2>
+            <h2 style={S.h2}><span style={{ color: "#e2e8f0" }}>Tu sais quoi faire.</span><br /><span style={{ color: "#334155" }}>Tu ne le fais pas.</span></h2>
             <p style={{ color: "#475569", lineHeight: 1.85, fontSize: "0.95rem" }}>
-              Formations, indicateurs, signaux, groupes Telegram.<br />
-              Le problème n'est pas le manque d'information.<br />
-              C'est que <strong style={{ color: "#a78bfa" }}>personne ne t'a aidé à comprendre comment tu décides toi.</strong>
+              Formations, stratégies, backtests — tu as tout essayé.<br />
+              Le problème n'est jamais l'analyse.<br />
+              C'est que <strong style={{ color: "#a78bfa" }}>personne ne t'a aidé à maîtriser le moment de décision.</strong>
             </p>
           </div>
         </FadeIn>
       </section>
 
-      {/* FEATURES */}
+      {/* FEATURES — mis à jour */}
       <section style={S.section()}>
         <FadeIn style={{ textAlign: "center", marginBottom: "3rem" }}>
           <p style={S.label}>FONCTIONNALITÉS</p>
-          <h2 style={S.h2}><span style={{ color: "#e2e8f0" }}>Tout ce dont tu as besoin.</span><br /><span style={{ color: "#334155" }}>Rien de superflu.</span></h2>
+          <h2 style={S.h2}><span style={{ color: "#e2e8f0" }}>Avant le trade.</span><br /><span style={{ color: "#334155" }}>Pendant. Après.</span></h2>
         </FadeIn>
         <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(2,1fr)", gap: "1rem" }}>
           {features.map((f, i) => (
@@ -282,13 +279,88 @@ export default function NexoraLanding() {
         </div>
       </section>
 
-      {/* HOW IT WORKS */}
+      {/* HOW IT WORKS — mis à jour */}
       <section style={S.section(600)}>
         <FadeIn>
           <p style={S.label}>COMMENT ÇA MARCHE</p>
-          <h2 style={{ ...S.h2, marginBottom: "3rem" }}><span style={{ color: "#e2e8f0" }}>Simple. Rapide.</span><br /><span style={{ color: "#334155" }}>Puissant.</span></h2>
+          <h2 style={{ ...S.h2, marginBottom: "3rem" }}><span style={{ color: "#e2e8f0" }}>Avant le trade.</span><br /><span style={{ color: "#334155" }}>C'est là que Nexora agit.</span></h2>
         </FadeIn>
         <StepsIndicator steps={steps} />
+      </section>
+
+      {/* CHECK AVANT-TRADE — nouvelle section */}
+      <section style={S.section(960)}>
+        <FadeIn style={{ textAlign: "center", marginBottom: "3rem" }}>
+          <p style={S.label}>LE CHECK AVANT-TRADE</p>
+          <h2 style={S.h2}><span style={{ color: "#e2e8f0" }}>Avant d'appuyer</span><br /><span style={{ color: "#334155" }}>sur le bouton.</span></h2>
+          <p style={{ color: "#475569", fontSize: "0.9rem", maxWidth: 520, margin: "0 auto" }}>En 60 secondes, Nexora évalue si tu dois vraiment prendre ce trade — ou si c'est ton biais qui parle.</p>
+        </FadeIn>
+
+        <FadeIn delay={0.1}>
+          <div style={{ background: "#0d0d18", border: "1px solid #1a1a2e", borderRadius: 20, overflow: "hidden", marginBottom: "1.5rem" }}>
+            <div style={{ padding: "1.25rem 1.5rem", borderBottom: "1px solid #1a1a2e", display: "flex", alignItems: "center", gap: "0.75rem" }}>
+              <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#6d28d9", boxShadow: "0 0 8px #6d28d9" }} />
+              <span style={{ fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: "0.9rem" }}>Check avant-trade</span>
+              <span style={{ color: "#334155", fontSize: "0.78rem", marginLeft: "auto" }}>Jeudi 09h18 · Avant ouverture</span>
+            </div>
+
+            <div style={{ padding: "1.5rem", display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "1.25rem" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                <div>
+                  <p style={{ fontSize: "0.68rem", color: "#475569", marginBottom: "0.4rem", fontWeight: 600, letterSpacing: "0.06em" }}>SETUP</p>
+                  <div style={{ background: "#07070d", border: "1px solid #1a1a2e", borderRadius: 8, padding: "0.6rem 0.9rem", fontSize: "0.85rem", color: "#e2e8f0" }}>EUR/USD · Long</div>
+                </div>
+                <div>
+                  <p style={{ fontSize: "0.68rem", color: "#475569", marginBottom: "0.4rem", fontWeight: 600, letterSpacing: "0.06em" }}>RAISON D'ENTRER</p>
+                  <div style={{ background: "#07070d", border: "1px solid #1a1a2e", borderRadius: 8, padding: "0.6rem 0.9rem", fontSize: "0.82rem", color: "#94a3b8", lineHeight: 1.6, minHeight: 60 }}>Breakout sur résistance clé, volume confirmé, dans mon plan de trading</div>
+                </div>
+                <div>
+                  <p style={{ fontSize: "0.68rem", color: "#475569", marginBottom: "0.4rem", fontWeight: 600, letterSpacing: "0.06em" }}>ÉTAT ÉMOTIONNEL</p>
+                  <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
+                    {["😌 Calme", "😤 Stressé", "⚡ Impulsif", "🎯 Focus"].map((e, i) => (
+                      <div key={i} style={{ flex: 1, minWidth: 60, background: i === 0 ? "rgba(16,185,129,.1)" : "#07070d", border: i === 0 ? "1px solid rgba(16,185,129,.25)" : "1px solid #1a1a2e", borderRadius: 8, padding: "0.4rem 0.2rem", fontSize: "0.7rem", color: i === 0 ? "#34d399" : "#334155", textAlign: "center" }}>{e}</div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p style={{ fontSize: "0.68rem", color: "#475569", marginBottom: "0.4rem", fontWeight: 600, letterSpacing: "0.06em" }}>CONFIANCE — 8/10</p>
+                  <div style={{ background: "#07070d", border: "1px solid #1a1a2e", borderRadius: 8, padding: "0.5rem 0.9rem" }}>
+                    <div style={{ height: 4, background: "#1a1a2e", borderRadius: 2, position: "relative" }}>
+                      <div style={{ position: "absolute", left: 0, top: 0, height: "100%", width: "80%", background: "linear-gradient(90deg,#6d28d9,#a78bfa)", borderRadius: 2 }} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                <div style={{ background: "rgba(109,40,217,.08)", border: "1px solid rgba(109,40,217,.2)", borderRadius: 12, padding: "1rem" }}>
+                  <p style={{ fontSize: "0.68rem", color: "#6d28d9", fontWeight: 600, marginBottom: "0.5rem", letterSpacing: "0.06em" }}>VERDICT NEXORA</p>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.75rem" }}>
+                    <div style={{ width: 48, height: 48, borderRadius: 12, background: "linear-gradient(135deg,#064e3b,#1e1b4b)", border: "1px solid #059669", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: "1rem", color: "#34d399" }}>87</div>
+                    <div>
+                      <p style={{ fontSize: "0.82rem", fontWeight: 600, color: "#e2e8f0" }}>Score de décision</p>
+                      <p style={{ fontSize: "0.72rem", color: "#34d399" }}>✓ Setup validé — tu peux entrer</p>
+                    </div>
+                  </div>
+                </div>
+                <div style={{ background: "rgba(234,179,8,.06)", border: "1px solid rgba(234,179,8,.2)", borderRadius: 10, padding: "1rem" }}>
+                  <p style={{ fontSize: "0.68rem", color: "#fbbf24", fontWeight: 600, marginBottom: "0.35rem", letterSpacing: "0.06em" }}>POINT D'ATTENTION</p>
+                  <p style={{ fontSize: "0.82rem", color: "#fde68a", lineHeight: 1.6 }}>Tu sors en moyenne 40% trop tôt sur ce type de setup. Fixe ton TP avant d'entrer.</p>
+                </div>
+                <div style={{ background: "rgba(109,40,217,.06)", border: "1px solid rgba(109,40,217,.15)", borderRadius: 10, padding: "1rem" }}>
+                  <p style={{ fontSize: "0.68rem", color: "#6d28d9", fontWeight: 600, marginBottom: "0.35rem", letterSpacing: "0.06em" }}>CONTEXTE OPTIMAL</p>
+                  <p style={{ fontSize: "0.82rem", color: "#a78bfa", lineHeight: 1.6 }}>Jeudi matin · Calme · Dans ton plan. C'est ton profil de trade idéal selon ton historique.</p>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ padding: "1rem 1.5rem 1.5rem" }}>
+              <div style={{ background: "linear-gradient(135deg,#6d28d9,#4f46e5)", borderRadius: 10, padding: "0.85rem", textAlign: "center", fontSize: "0.88rem", fontWeight: 600, fontFamily: "'Syne',sans-serif", color: "white", cursor: "pointer" }}>
+                Valider et entrer en position →
+              </div>
+            </div>
+          </div>
+        </FadeIn>
       </section>
 
       {/* ONBOARDING */}
@@ -296,15 +368,15 @@ export default function NexoraLanding() {
         <FadeIn style={{ textAlign: "center", marginBottom: "3rem" }}>
           <p style={S.label}>AVANT TOUT</p>
           <h2 style={S.h2}><span style={{ color: "#e2e8f0" }}>Nexora commence</span><br /><span style={{ color: "#334155" }}>par te connaître.</span></h2>
-          <p style={{ color: "#475569", fontSize: "0.9rem", maxWidth: 520, margin: "0 auto" }}>Avant d'analyser tes trades, Nexora construit ton profil décisionnel complet. C'est ce qui rend chaque analyse unique.</p>
+          <p style={{ color: "#475569", fontSize: "0.9rem", maxWidth: 520, margin: "0 auto" }}>Avant d'analyser tes décisions, Nexora construit ton profil complet. C'est ce qui rend chaque verdict unique et pertinent.</p>
         </FadeIn>
 
         <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(2,1fr)", gap: "1rem", marginBottom: "1.5rem" }}>
           {[
-            { step: "01", title: "Ton profil", desc: "Ton marché, ton expérience, ton capital, ton historique de comptes.", icon: "◎" },
-            { step: "02", title: "Ton plan", desc: "Tes règles d'entrée, de sortie, ta gestion du risque. Nexora les mémorise.", icon: "◈" },
-            { step: "03", title: "Ta psychologie", desc: "Tes biais, tes erreurs récurrentes, tes comptes grillés. Tout compte.", icon: "⟁" },
-            { step: "04", title: "Tes objectifs", desc: "Ce que tu veux atteindre. Nexora calibre ses recommandations dessus.", icon: "◷" },
+            { step: "01", title: "Ton profil trader", desc: "Ton marché, ton expérience, ton capital, ton historique. Nexora sait qui tu es.", icon: "◎" },
+            { step: "02", title: "Ton framework", desc: "Tes règles d'entrée, de sortie, ta gestion du risque. Nexora les mémorise pour les vérifier à chaque trade.", icon: "◈" },
+            { step: "03", title: "Ta psychologie", desc: "Tes biais connus, tes erreurs récurrentes. Nexora sait où tu te sabotes avant même que tu le fasses.", icon: "⟁" },
+            { step: "04", title: "Tes objectifs", desc: "Ce que tu veux atteindre. Nexora calibre chaque verdict sur ta réalité à toi.", icon: "◷" },
           ].map((item, i) => (
             <FadeIn key={i} delay={i * 0.08}>
               <div className="fcard" style={{ position: "relative" }}>
@@ -322,94 +394,9 @@ export default function NexoraLanding() {
             <div style={{ fontSize: "1.5rem" }}>🔑</div>
             <div>
               <p style={{ fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: "0.95rem", marginBottom: "0.3rem" }}>Pourquoi c'est crucial</p>
-              <p style={{ color: "#475569", fontSize: "0.85rem", lineHeight: 1.7 }}>C'est grâce à ton profil que Nexora sait si tu as respecté <strong style={{ color: "#a78bfa" }}>TON</strong> plan — pas un plan générique. Sans ça, l'analyse ne vaut rien.</p>
+              <p style={{ color: "#475569", fontSize: "0.85rem", lineHeight: 1.7 }}>C'est grâce à ton profil que Nexora sait si tu respectes <strong style={{ color: "#a78bfa" }}>TON</strong> plan — pas un plan générique. Sans ça, le verdict ne vaut rien.</p>
             </div>
           </div>
-        </FadeIn>
-        <div style={{ textAlign: "center", padding: "2rem 0 0", color: "#3b1f6e", fontSize: "1.5rem" }}>↓</div>
-      </section>
-
-      {/* JOURNAL */}
-      <section style={S.section(960)}>
-        <FadeIn style={{ textAlign: "center", marginBottom: "3rem" }}>
-          <p style={S.label}>LE JOURNAL — 30 SECONDES</p>
-          <h2 style={S.h2}><span style={{ color: "#e2e8f0" }}>Tu remplis ça.</span><br /><span style={{ color: "#334155" }}>Nexora fait le reste.</span></h2>
-          <p style={{ color: "#475569", fontSize: "0.9rem" }}>Voici exactement ce qu'on te demande après chaque trade.</p>
-        </FadeIn>
-
-        <FadeIn delay={0.1}>
-          <div style={{ background: "#0d0d18", border: "1px solid #1a1a2e", borderRadius: 20, overflow: "hidden", marginBottom: "1.5rem" }}>
-            <div style={{ padding: "1.25rem 1.5rem", borderBottom: "1px solid #1a1a2e", display: "flex", alignItems: "center", gap: "0.75rem" }}>
-              <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#6d28d9", boxShadow: "0 0 8px #6d28d9" }} />
-              <span style={{ fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: "0.9rem" }}>Nouveau trade</span>
-              <span style={{ color: "#334155", fontSize: "0.78rem", marginLeft: "auto" }}>Mardi 09h18</span>
-            </div>
-
-            <div style={{ padding: "1.5rem", display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "1.25rem" }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                <div>
-                  <p style={{ fontSize: "0.68rem", color: "#475569", marginBottom: "0.4rem", fontWeight: 600, letterSpacing: "0.06em" }}>ACTIF</p>
-                  <div style={{ background: "#07070d", border: "1px solid #1a1a2e", borderRadius: 8, padding: "0.6rem 0.9rem", fontSize: "0.85rem", color: "#e2e8f0" }}>BTC/USDT</div>
-                </div>
-                <div>
-                  <p style={{ fontSize: "0.68rem", color: "#475569", marginBottom: "0.4rem", fontWeight: 600, letterSpacing: "0.06em" }}>DIRECTION</p>
-                  <div style={{ display: "flex", gap: "0.5rem" }}>
-                    <div style={{ flex: 1, background: "rgba(16,185,129,.12)", border: "1px solid rgba(16,185,129,.3)", borderRadius: 8, padding: "0.6rem", fontSize: "0.82rem", color: "#34d399", textAlign: "center", fontWeight: 600 }}>▲ Long</div>
-                    <div style={{ flex: 1, background: "#07070d", border: "1px solid #1a1a2e", borderRadius: 8, padding: "0.6rem", fontSize: "0.82rem", color: "#334155", textAlign: "center" }}>▼ Short</div>
-                  </div>
-                </div>
-                <div>
-                  <p style={{ fontSize: "0.68rem", color: "#475569", marginBottom: "0.4rem", fontWeight: 600, letterSpacing: "0.06em" }}>RÉSULTAT</p>
-                  <div style={{ background: "#07070d", border: "1px solid #1a1a2e", borderRadius: 8, padding: "0.6rem 0.9rem", fontSize: "0.85rem", color: "#34d399", fontWeight: 600 }}>+ 3.8%</div>
-                </div>
-                <div>
-                  <p style={{ fontSize: "0.68rem", color: "#475569", marginBottom: "0.4rem", fontWeight: 600, letterSpacing: "0.06em" }}>CONTEXTE MACRO</p>
-                  <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
-                    {["Rien de majeur ✓", "CPI demain", "FOMC ce soir", "News crypto"].map((tag, i) => (
-                      <div key={i} style={{ background: i === 0 ? "rgba(109,40,217,.15)" : "#07070d", border: i === 0 ? "1px solid rgba(109,40,217,.3)" : "1px solid #1a1a2e", borderRadius: 20, padding: "0.25rem 0.65rem", fontSize: "0.7rem", color: i === 0 ? "#a78bfa" : "#334155" }}>{tag}</div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                <div>
-                  <p style={{ fontSize: "0.68rem", color: "#475569", marginBottom: "0.4rem", fontWeight: 600, letterSpacing: "0.06em" }}>POURQUOI CE TRADE ?</p>
-                  <div style={{ background: "#07070d", border: "1px solid #1a1a2e", borderRadius: 8, padding: "0.6rem 0.9rem", fontSize: "0.82rem", color: "#94a3b8", lineHeight: 1.6, minHeight: 60 }}>Breakout propre sur niveau clé, volume confirmé, pas de news majeures</div>
-                </div>
-                <div>
-                  <p style={{ fontSize: "0.68rem", color: "#475569", marginBottom: "0.4rem", fontWeight: 600, letterSpacing: "0.06em" }}>ÉTAT ÉMOTIONNEL</p>
-                  <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
-                    {["😌 Calme", "😤 Stressé", "⚡ Impulsif", "🎯 Focus"].map((e, i) => (
-                      <div key={i} style={{ flex: 1, minWidth: 60, background: i === 0 ? "rgba(16,185,129,.1)" : "#07070d", border: i === 0 ? "1px solid rgba(16,185,129,.25)" : "1px solid #1a1a2e", borderRadius: 8, padding: "0.4rem 0.2rem", fontSize: "0.7rem", color: i === 0 ? "#34d399" : "#334155", textAlign: "center" }}>{e}</div>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <p style={{ fontSize: "0.68rem", color: "#475569", marginBottom: "0.4rem", fontWeight: 600, letterSpacing: "0.06em" }}>CONFIANCE — 7/10</p>
-                  <div style={{ background: "#07070d", border: "1px solid #1a1a2e", borderRadius: 8, padding: "0.5rem 0.9rem" }}>
-                    <div style={{ height: 4, background: "#1a1a2e", borderRadius: 2, position: "relative" }}>
-                      <div style={{ position: "absolute", left: 0, top: 0, height: "100%", width: "70%", background: "linear-gradient(90deg,#6d28d9,#a78bfa)", borderRadius: 2 }} />
-                    </div>
-                  </div>
-                </div>
-                <div style={{ background: "rgba(109,40,217,.06)", border: "1px solid rgba(109,40,217,.15)", borderRadius: 10, padding: "0.85rem 1rem" }}>
-                  <p style={{ fontSize: "0.68rem", color: "#6d28d9", fontWeight: 600, marginBottom: "0.3rem", letterSpacing: "0.06em" }}>NEXORA ÉVALUE ÇA POUR TOI</p>
-                  <p style={{ fontSize: "0.78rem", color: "#64748b", lineHeight: 1.6 }}>Tu ne juges pas si tu as respecté ton plan. Nexora le fait — sans complaisance, sans biais.</p>
-                </div>
-              </div>
-            </div>
-
-            <div style={{ padding: "1rem 1.5rem 1.5rem" }}>
-              <div style={{ background: "linear-gradient(135deg,#6d28d9,#4f46e5)", borderRadius: 10, padding: "0.85rem", textAlign: "center", fontSize: "0.88rem", fontWeight: 600, fontFamily: "'Syne',sans-serif", color: "white", cursor: "pointer" }}>
-                Analyser ce trade avec Nexora →
-              </div>
-            </div>
-          </div>
-        </FadeIn>
-
-        <FadeIn delay={0.15}>
-          <div style={{ textAlign: "center", padding: "0.5rem 0 1rem", color: "#3b1f6e", fontSize: "1.5rem" }}>↓</div>
         </FadeIn>
       </section>
 
@@ -419,47 +406,6 @@ export default function NexoraLanding() {
           <p style={S.label}>APERÇU DU PRODUIT</p>
           <h2 style={S.h2}><span style={{ color: "#e2e8f0" }}>Finis le brouillard.</span><br /><span style={{ background: "linear-gradient(135deg,#a78bfa,#6366f1)", backgroundClip: "text", WebkitBackgroundClip: "text", color: "transparent", WebkitTextFillColor: "transparent" }}>Comprends tes décisions.</span></h2>
           <p style={{ color: "#475569", fontSize: "0.9rem" }}>Pas des signaux. Pas des prédictions. Un miroir de toi.</p>
-        </FadeIn>
-
-        <FadeIn delay={0.1}>
-          <div style={{ background: "#0d0d18", border: "1px solid #1a1a2e", borderRadius: 20, overflow: "hidden", marginBottom: "1.5rem" }}>
-            <div style={{ padding: "1.25rem 1.5rem", borderBottom: "1px solid #1a1a2e", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.75rem" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                <div style={{ background: "linear-gradient(135deg,#3b1f6e,#1e1b4b)", border: "1px solid #3b1f6e", borderRadius: 8, padding: "0.3rem 0.8rem", fontSize: "0.72rem", color: "#a78bfa", fontWeight: 600, fontFamily: "'Syne',sans-serif" }}>Trade #147</div>
-                <span style={{ color: "#334155", fontSize: "0.8rem" }}>BTC/USDT · Long · Mardi 09h22</span>
-              </div>
-              <div style={{ background: "rgba(16,185,129,.1)", border: "1px solid rgba(16,185,129,.2)", borderRadius: 8, padding: "0.3rem 0.8rem", fontSize: "0.72rem", color: "#34d399", fontWeight: 600 }}>+3.8%</div>
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 0 }}>
-              <div style={{ padding: "1.5rem", borderRight: isMobile ? "none" : "1px solid #1a1a2e", borderBottom: isMobile ? "1px solid #1a1a2e" : "none" }}>
-                <p style={{ fontSize: "0.68rem", color: "#334155", letterSpacing: "0.08em", marginBottom: "1rem", fontWeight: 600 }}>TON ENTRÉE</p>
-                {[
-                  { l: "Pourquoi ce trade", v: "Breakout propre sur niveau clé, volume fort" },
-                  { l: "État émotionnel", v: "😌 Calme — 1/5" },
-                  { l: "Confiance", v: "⚡ 7/10" },
-                  { l: "Respect du plan", v: "✅ Évalué par Nexora" },
-                ].map((x, i) => <div key={i} style={{ marginBottom: "0.8rem" }}>
-                  <p style={{ fontSize: "0.68rem", color: "#334155", marginBottom: "0.15rem" }}>{x.l}</p>
-                  <p style={{ fontSize: "0.82rem", color: "#94a3b8" }}>{x.v}</p>
-                </div>)}
-              </div>
-              <div style={{ padding: "1.5rem" }}>
-                <p style={{ fontSize: "0.68rem", color: "#6d28d9", letterSpacing: "0.08em", marginBottom: "1rem", fontWeight: 600 }}>ANALYSE NEXORA</p>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.25rem" }}>
-                  <div style={{ width: 48, height: 48, borderRadius: 12, background: "linear-gradient(135deg,#064e3b,#1e1b4b)", border: "1px solid #059669", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: "1rem", color: "#34d399" }}>91</div>
-                  <div><p style={{ fontSize: "0.78rem", fontWeight: 600 }}>Score de décision</p><p style={{ fontSize: "0.72rem", color: "#475569" }}>Excellente décision</p></div>
-                </div>
-                <div style={{ background: "rgba(109,40,217,.08)", border: "1px solid rgba(109,40,217,.2)", borderRadius: 10, padding: "1rem", marginBottom: "0.75rem" }}>
-                  <p style={{ fontSize: "0.68rem", color: "#6d28d9", fontWeight: 600, marginBottom: "0.35rem", letterSpacing: "0.06em" }}>INSIGHT INATTENDU</p>
-                  <p style={{ fontSize: "0.82rem", color: "#a78bfa", lineHeight: 1.6 }}>Ce setup performe 40% moins bien le lundi matin. Tu as eu de la chance — note-le pour la prochaine fois.</p>
-                </div>
-                <div style={{ background: "rgba(16,185,129,.06)", border: "1px solid rgba(16,185,129,.15)", borderRadius: 10, padding: "1rem" }}>
-                  <p style={{ fontSize: "0.68rem", color: "#10b981", fontWeight: 600, marginBottom: "0.35rem", letterSpacing: "0.06em" }}>TON ÉTAT OPTIMAL</p>
-                  <p style={{ fontSize: "0.82rem", color: "#6ee7b7", lineHeight: 1.6 }}>Tes 5 meilleurs trades : calme, le matin, après une bonne nuit. C'est là que tu décides le mieux.</p>
-                </div>
-              </div>
-            </div>
-          </div>
         </FadeIn>
 
         {/* Curve + Profile */}
@@ -553,13 +499,13 @@ export default function NexoraLanding() {
           <div style={{ background: "#0d0d18", border: "1px solid #1a1a2e", borderRadius: 20, padding: isMobile ? "1.75rem" : "3rem", textAlign: "center" }}>
             <p style={{ ...S.label, textAlign: "center" }}>CE QUE NEXORA RÉVÈLE</p>
             <h2 style={{ ...S.h2, marginBottom: "2rem" }}>
-              <span style={{ color: "#e2e8f0" }}>"Tu pensais être mauvais en trading."</span><br />
-              <span style={{ color: "#475569" }}>"En réalité, tu trades bien…</span><br />
-              <span style={{ background: "linear-gradient(135deg,#a78bfa,#6366f1)", backgroundClip: "text", WebkitBackgroundClip: "text", color: "transparent", WebkitTextFillColor: "transparent" }}>mais au mauvais moment."</span>
+              <span style={{ color: "#e2e8f0" }}>"Tu n'es pas un mauvais trader."</span><br />
+              <span style={{ color: "#475569" }}>"Tu prends de mauvaises décisions</span><br />
+              <span style={{ background: "linear-gradient(135deg,#a78bfa,#6366f1)", backgroundClip: "text", WebkitBackgroundClip: "text", color: "transparent", WebkitTextFillColor: "transparent" }}>dans les mauvais contextes."</span>
             </h2>
             <p style={{ color: "#475569", fontSize: "0.9rem", lineHeight: 1.8, maxWidth: 520, margin: "0 auto" }}>
               83% des pertes viennent de 2 ou 3 situations récurrentes que tu ne vois pas.<br />
-              Nexora les voit. Et te le montre.
+              Nexora les voit. Et t'arrête avant que tu les répètes.
             </p>
           </div>
         </FadeIn>
@@ -569,14 +515,14 @@ export default function NexoraLanding() {
       <section style={S.section(1000)}>
         <FadeIn style={{ textAlign: "center", marginBottom: "3rem" }}>
           <p style={S.label}>ACCÈS ANTICIPÉ</p>
-          <h2 style={S.h2}>Les premiers retours arrivent bientôt.</h2>
-          <p style={{ color: "#475569", fontSize: "0.9rem" }}>Rejoins les premiers traders et construis le produit avec nous.</p>
+          <h2 style={S.h2}>100 traders. Pas un de plus.</h2>
+          <p style={{ color: "#475569", fontSize: "0.9rem" }}>Les premiers qui rejoignent construisent le produit avec nous — et gardent le meilleur tarif à vie.</p>
         </FadeIn>
         <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3,1fr)", gap: "1rem" }}>
           {[
-            { label: "Ce que tu découvres", text: "Tu identifies tes patterns de décision que tu ne vois jamais seul." },
-            { label: "Ce que tu comprends", text: "Tu comprends pourquoi tu perds — pas comment le marché bouge." },
-            { label: "Ce que tu construis", text: "Une structure décisionnelle qui te ressemble et s'améliore chaque semaine." },
+            { label: "Ce que tu reçois", text: "Un Check avant chaque trade. Un score de décision. Un profil psychologique qui s'affine chaque semaine." },
+            { label: "Ce que tu comprends", text: "Pourquoi tu te sabotes — pas comment le marché bouge. C'est une différence fondamentale." },
+            { label: "Ce que tu construis", text: "Une discipline décisionnelle qui te ressemble. Pas un système générique. Le tien." },
           ].map((t, i) => (
             <FadeIn key={i} delay={i * 0.1}>
               <div className="tcard" style={{ borderLeft: "2px solid #3b1f6e" }}>
@@ -593,10 +539,10 @@ export default function NexoraLanding() {
         <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: 600, height: 300, borderRadius: "50%", background: "radial-gradient(circle,rgba(109,40,217,.07) 0%,transparent 70%)", pointerEvents: "none" }} />
         <FadeIn>
           <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: isMobile ? "1.9rem" : "3rem", fontWeight: 800, letterSpacing: "-0.03em", marginBottom: "1rem", position: "relative" }}>
-            <span style={{ color: "#e2e8f0" }}>Prêt à comprendre</span><br />
-            <span style={{ background: "linear-gradient(135deg,#a78bfa,#6366f1)", backgroundClip: "text", WebkitBackgroundClip: "text", color: "transparent", WebkitTextFillColor: "transparent" }}>comment tu décides vraiment ?</span>
+            <span style={{ color: "#e2e8f0" }}>Prêt à décider</span><br />
+            <span style={{ background: "linear-gradient(135deg,#a78bfa,#6366f1)", backgroundClip: "text", WebkitBackgroundClip: "text", color: "transparent", WebkitTextFillColor: "transparent" }}>au lieu de subir ?</span>
           </h2>
-          <p style={{ color: "#475569", marginBottom: "2.5rem", fontSize: "0.95rem" }}>Accès early bird offert aux 100 premiers.</p>
+          <p style={{ color: "#475569", marginBottom: "2.5rem", fontSize: "0.95rem" }}>Accès early bird offert aux 100 premiers. Tarif bloqué à vie.</p>
           <CTA {...CTA_PROPS} />
         </FadeIn>
       </section>
@@ -607,7 +553,7 @@ export default function NexoraLanding() {
           <div style={{ width: 24, height: 24, borderRadius: 6, background: "linear-gradient(135deg,#4f46e5,#7c3aed)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Syne',sans-serif", fontWeight: 900, fontSize: "0.75rem", color: "white" }}>N</div>
           <span style={{ fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: "0.85rem", color: "#334155" }}>NEXORA</span>
         </div>
-        <p style={{ color: "#1e293b", fontSize: "0.72rem" }}>© 2026 Nexora · Le premier système d'aide à la prise de décision pour traders.</p>
+        <p style={{ color: "#1e293b", fontSize: "0.72rem" }}>© 2026 Nexora · Arrête de subir tes trades. Commence à les décider.</p>
       </footer>
     </div>
   );
