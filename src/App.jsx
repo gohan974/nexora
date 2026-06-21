@@ -344,9 +344,9 @@ export default function NexoraLanding() {
         <FadeIn delay={0.3} style={{ marginTop: "4rem", borderTop: "1px solid #12121f", paddingTop: "2.5rem", width: "100%", maxWidth: 720 }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: isMobile ? "0.5rem" : "1.5rem" }}>
             {[
-              { big: "0", small: "signal." },
-              { big: "0", small: "promesse." },
-              { big: "100%", small: "basé sur toi et ton plan." },
+              { big: "Décision", small: "pas prédiction. Nexora t'aide à décider, jamais à deviner." },
+              { big: "0", small: "signal, 0 conseil d'achat. Le focus, c'est ta décision." },
+              { big: "100%", small: "basé sur toi : ton profil, ton plan, ta psychologie." },
             ].map((s, i) => (
               <div key={i} style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" }}>
                 <div style={{ fontFamily: "'Syne',sans-serif", fontSize: isMobile ? "1.4rem" : "2.2rem", fontWeight: 800, color: "#a78bfa", lineHeight: 1.1, marginBottom: "0.5rem", minHeight: isMobile ? "1.9rem" : "2.6rem", display: "flex", alignItems: "center" }}>{s.big}</div>
