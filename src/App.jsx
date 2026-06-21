@@ -71,6 +71,85 @@ const CTA = ({ email, setEmail, submitted, handleSubmit, isMobile }) => (
   </div>
 );
 
+/* ─── Constellation animée (fond cinématique) ─── */
+const Constellation = ({ isMobile }) => {
+  const canvasRef = useRef(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    let w, h, raf;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const count = isMobile ? 38 : 90;
+    const maxDist = isMobile ? 110 : 150;
+    const points = [];
+
+    const resize = () => {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = document.body.scrollHeight;
+      canvas.style.height = h + "px";
+    };
+
+    const init = () => {
+      points.length = 0;
+      const area = w * h;
+      const n = Math.min(Math.round(area / (isMobile ? 26000 : 20000)), isMobile ? 70 : 200);
+      for (let i = 0; i < n; i++) {
+        points.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          vx: (Math.random() - 0.5) * 0.18,
+          vy: (Math.random() - 0.5) * 0.18,
+          r: Math.random() * 1.4 + 0.6,
+          tw: Math.random() * Math.PI * 2,
+        });
+      }
+    };
+
+    const draw = () => {
+      ctx.clearRect(0, 0, w, h);
+      for (let i = 0; i < points.length; i++) {
+        const p = points[i];
+        p.x += p.vx; p.y += p.vy; p.tw += 0.02;
+        if (p.x < 0 || p.x > w) p.vx *= -1;
+        if (p.y < 0 || p.y > h) p.vy *= -1;
+        const alpha = 0.4 + Math.sin(p.tw) * 0.3;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(167,139,250,${alpha})`;
+        ctx.fill();
+        for (let j = i + 1; j < points.length; j++) {
+          const q = points[j];
+          const dx = p.x - q.x, dy = p.y - q.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < maxDist) {
+            const o = (1 - dist / maxDist) * 0.22;
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(q.x, q.y);
+            ctx.strokeStyle = `rgba(109,40,217,${o})`;
+            ctx.lineWidth = 0.6;
+            ctx.stroke();
+          }
+        }
+      }
+      raf = requestAnimationFrame(draw);
+    };
+
+    resize(); init();
+    if (reduced) { draw(); cancelAnimationFrame(raf); }
+    else draw();
+
+    let rt;
+    const onResize = () => { clearTimeout(rt); rt = setTimeout(() => { resize(); init(); }, 200); };
+    window.addEventListener("resize", onResize);
+    return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", onResize); };
+  }, [isMobile]);
+
+  return <canvas ref={canvasRef} style={{ position: "absolute", top: 0, left: 0, width: "100%", pointerEvents: "none", zIndex: 0 }} />;
+};
+
 /* ─── Chart ─── */
 const decisionData = [
   { week: "S1", score: 48 }, { week: "S2", score: 54 },
@@ -147,7 +226,7 @@ export default function NexoraLanding() {
   const pad = isMobile ? "1rem" : "2rem";
   const S = {
     page: { background: "#07070d", color: "#e2e8f0", fontFamily: "'DM Sans',sans-serif", minHeight: "100vh", overflowX: "hidden" },
-    section: (mw = 1100) => ({ padding: isMobile ? "3rem 1rem" : "5rem 2rem", maxWidth: mw, margin: "0 auto" }),
+    section: (mw = 1100) => ({ padding: isMobile ? "3rem 1rem" : "5rem 2rem", maxWidth: mw, margin: "0 auto", position: "relative", zIndex: 1 }),
     label: { fontSize: "0.72rem", color: "#6d28d9", letterSpacing: "0.1em", fontWeight: 600, marginBottom: "0.6rem" },
     h2: { fontFamily: "'Syne',sans-serif", fontSize: isMobile ? "1.7rem" : "2.4rem", fontWeight: 700, letterSpacing: "-0.02em", marginBottom: "1rem" },
   };
@@ -155,7 +234,8 @@ export default function NexoraLanding() {
   const CTA_PROPS = { email, setEmail, submitted, handleSubmit, isMobile };
 
   return (
-    <div style={S.page}>
+    <div style={{ ...S.page, position: "relative" }}>
+      <Constellation isMobile={isMobile} />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=Syne:wght@600;700;800&display=swap');
         *{box-sizing:border-box;margin:0;padding:0}
@@ -197,7 +277,7 @@ export default function NexoraLanding() {
       </nav>
 
       {/* HERO */}
-      <section style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: isMobile ? "7rem 1.25rem 3rem" : "8rem 2rem 4rem", position: "relative", textAlign: "center" }}>
+      <section style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: isMobile ? "7rem 1.25rem 3rem" : "8rem 2rem 4rem", position: "relative", textAlign: "center", zIndex: 1 }}>
         <div style={{ position: "absolute", top: "18%", left: "8%", width: isMobile ? 220 : 520, height: isMobile ? 220 : 520, borderRadius: "50%", background: "radial-gradient(circle,rgba(109,40,217,.12) 0%,transparent 70%)", animation: "pulse-ring 7s ease-in-out infinite", pointerEvents: "none" }} />
         <div style={{ position: "absolute", bottom: "12%", right: "6%", width: isMobile ? 180 : 420, height: isMobile ? 180 : 420, borderRadius: "50%", background: "radial-gradient(circle,rgba(79,70,229,.1) 0%,transparent 70%)", animation: "pulse-ring-2 9s ease-in-out infinite", pointerEvents: "none" }} />
 
@@ -494,7 +574,7 @@ export default function NexoraLanding() {
       </section>
 
       {/* FINAL CTA */}
-      <section style={{ padding: isMobile ? "4rem 1.25rem 6rem" : "6rem 2rem 8rem", textAlign: "center", position: "relative" }}>
+      <section style={{ padding: isMobile ? "4rem 1.25rem 6rem" : "6rem 2rem 8rem", textAlign: "center", position: "relative", zIndex: 1 }}>
         <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: 600, height: 300, borderRadius: "50%", background: "radial-gradient(circle,rgba(109,40,217,.07) 0%,transparent 70%)", pointerEvents: "none" }} />
         <FadeIn>
           <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: isMobile ? "1.9rem" : "3rem", fontWeight: 800, letterSpacing: "-0.03em", marginBottom: "1rem", position: "relative" }}>
@@ -507,7 +587,7 @@ export default function NexoraLanding() {
       </section>
 
       {/* FOOTER */}
-      <footer style={{ borderTop: "1px solid #0d0d18", padding: "2rem", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
+      <footer style={{ borderTop: "1px solid #0d0d18", padding: "2rem", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem", position: "relative", zIndex: 1 }}>
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
           <div style={{ width: 24, height: 24, borderRadius: 6, background: "linear-gradient(135deg,#4f46e5,#7c3aed)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Syne',sans-serif", fontWeight: 900, fontSize: "0.75rem", color: "white" }}>N</div>
           <span style={{ fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: "0.85rem", color: "#334155" }}>NEXORA</span>
