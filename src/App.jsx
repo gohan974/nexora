@@ -172,7 +172,7 @@ export default function NexoraLanding() {
         </div>
 
         <p style={{ fontSize: isMobile ? "0.75rem" : "0.85rem", color: "#6d28d9", fontWeight: 600, letterSpacing: "0.08em", marginBottom: "1rem", textTransform: "uppercase" }}>
-          Le premier système d'aide à la décision pour traders
+          Le premier système d'aide à la prise de décision pour traders
         </p>
 
         <h1 style={{ fontFamily: "'Syne',sans-serif", fontSize: isMobile ? "2.2rem" : "4.4rem", fontWeight: 800, lineHeight: 1.15, letterSpacing: "-0.03em", maxWidth: 820, marginBottom: "1.5rem" }}>
