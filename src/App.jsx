@@ -172,7 +172,7 @@ export default function NexoraLanding() {
         </div>
 
         <p style={{ fontSize: isMobile ? "0.75rem" : "0.85rem", color: "#6d28d9", fontWeight: 600, letterSpacing: "0.08em", marginBottom: "1rem", textTransform: "uppercase" }}>
-          L'outil qui intervient avant le trade — pas après
+          Le premier système d'aide à la décision pour traders
         </p>
 
         <h1 style={{ fontFamily: "'Syne',sans-serif", fontSize: isMobile ? "2.2rem" : "4.4rem", fontWeight: 800, lineHeight: 1.15, letterSpacing: "-0.03em", maxWidth: 820, marginBottom: "1.5rem" }}>
@@ -192,8 +192,8 @@ export default function NexoraLanding() {
 
         <div style={{ display: "flex", gap: isMobile ? "1.5rem" : "3rem", marginTop: "4rem", borderTop: "1px solid #0d0d18", paddingTop: "2.5rem", flexWrap: "wrap", justifyContent: "center" }}>
           {[
-            { n: "Avant", label: "le trade — pas après. C'est là que tout se joue." },
-            { n: "0", label: "signal. 0 prédiction. 100% basé sur toi et ton plan." },
+            { n: "Décision", label: "pas prédiction. Nexora t'aide à décider, jamais à deviner." },
+            { n: "0", label: "signal. 0 promesse de gain. 100% basé sur toi et ton plan." },
             { n: "1", label: "seul objectif — maîtriser tes décisions de trading." },
           ].map((s, i) => (
             <div key={i} style={{ textAlign: "center" }}>
