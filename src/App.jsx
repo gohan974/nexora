@@ -313,16 +313,16 @@ export default function NexoraLanding() {
           <p style={S.label}>L'ÉCOSYSTÈME COMPLET</p>
           <h2 style={S.h2}><span style={{ color: "#e2e8f0" }}>Tout ce qu'il te faut</span><br /><span style={{ color: "#334155" }}>pour décider en conscience.</span></h2>
         </FadeIn>
-        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(2,1fr)", gap: "1rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: isMobile ? "0.6rem" : "1rem" }}>
           {allFeatures.map((f, i) => (
             <FadeIn key={i} delay={(i % 2) * 0.08}>
-              <div className="fcard">
-                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.75rem" }}>
-                  <div style={{ fontSize: "1.3rem", color: "#6d28d9" }}>{f.icon}</div>
-                  <span style={{ fontSize: "0.62rem", color: "#6d28d9", letterSpacing: "0.08em", fontWeight: 600, background: "rgba(109,40,217,.08)", border: "1px solid rgba(109,40,217,.18)", borderRadius: 20, padding: "0.2rem 0.6rem" }}>{f.tag}</span>
+              <div className="fcard" style={{ padding: isMobile ? "1rem" : "1.5rem" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.6rem", flexWrap: "wrap" }}>
+                  <div style={{ fontSize: isMobile ? "1.1rem" : "1.3rem", color: "#6d28d9" }}>{f.icon}</div>
+                  <span style={{ fontSize: isMobile ? "0.55rem" : "0.62rem", color: "#6d28d9", letterSpacing: "0.06em", fontWeight: 600, background: "rgba(109,40,217,.08)", border: "1px solid rgba(109,40,217,.18)", borderRadius: 20, padding: "0.2rem 0.55rem" }}>{f.tag}</span>
                 </div>
-                <h3 style={{ fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: "1.05rem", marginBottom: "0.5rem", color: "#e2e8f0" }}>{f.title}</h3>
-                <p style={{ color: "#475569", fontSize: "0.85rem", lineHeight: 1.7 }}>{f.desc}</p>
+                <h3 style={{ fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: isMobile ? "0.95rem" : "1.05rem", marginBottom: "0.4rem", color: "#e2e8f0" }}>{f.title}</h3>
+                <p style={{ color: "#475569", fontSize: isMobile ? "0.78rem" : "0.85rem", lineHeight: 1.6 }}>{f.desc}</p>
               </div>
             </FadeIn>
           ))}
