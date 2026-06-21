@@ -78,11 +78,11 @@ const Constellation = ({ isMobile }) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
-    let w, h, raf;
+    let w, h, raf, t = 0;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const mouse = { x: -9999, y: -9999 };
 
-    const count = isMobile ? 38 : 90;
-    const maxDist = isMobile ? 130 : 175;
+    const maxDist = isMobile ? 120 : 160;
     const points = [];
 
     const resize = () => {
@@ -94,45 +94,68 @@ const Constellation = ({ isMobile }) => {
     const init = () => {
       points.length = 0;
       const area = w * h;
-      const n = Math.min(Math.round(area / (isMobile ? 20000 : 15000)), isMobile ? 90 : 260);
+      // beaucoup plus dense
+      const n = Math.min(Math.round(area / (isMobile ? 9000 : 6000)), isMobile ? 180 : 520);
       for (let i = 0; i < n; i++) {
         points.push({
           x: Math.random() * w,
           y: Math.random() * h,
-          vx: (Math.random() - 0.5) * 0.32,
-          vy: (Math.random() - 0.5) * 0.32,
-          r: Math.random() * 1.8 + 0.9,
+          vx: (Math.random() - 0.5) * 0.4,
+          vy: (Math.random() - 0.5) * 0.4,
+          r: Math.random() * 1.6 + 0.7,
           tw: Math.random() * Math.PI * 2,
+          pulse: Math.random() * 100, // pour les pulses de lumière
         });
       }
     };
 
     const draw = () => {
-      ctx.clearRect(0, 0, w, h);
+      t += 0.01;
+      // léger fond pour effet de traînée (trails)
+      ctx.fillStyle = "rgba(7,7,13,0.22)";
+      ctx.fillRect(0, 0, w, h);
+
       for (let i = 0; i < points.length; i++) {
         const p = points[i];
-        p.x += p.vx; p.y += p.vy; p.tw += 0.025;
+        p.x += p.vx; p.y += p.vy; p.tw += 0.03; p.pulse += 0.6;
         if (p.x < 0 || p.x > w) p.vx *= -1;
         if (p.y < 0 || p.y > h) p.vy *= -1;
-        const alpha = 0.55 + Math.sin(p.tw) * 0.4;
+
+        // attraction douce vers la souris
+        const mdx = mouse.x - p.x, mdy = mouse.y - p.y;
+        const mdist = Math.sqrt(mdx * mdx + mdy * mdy);
+        if (mdist < 200) {
+          const force = (1 - mdist / 200) * 0.4;
+          p.x += (mdx / mdist) * force;
+          p.y += (mdy / mdist) * force;
+        }
+
+        const near = mdist < 200;
+        const pulseGlow = (Math.sin(p.pulse * 0.05) + 1) * 0.5;
+        const alpha = (0.5 + Math.sin(p.tw) * 0.4) * (near ? 1 : 0.85);
+        const radius = p.r + pulseGlow * 0.8 + (near ? 0.8 : 0);
+
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(180,160,255,${alpha})`;
-        ctx.shadowBlur = 6;
-        ctx.shadowColor = "rgba(139,92,246,0.6)";
+        ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+        ctx.fillStyle = near ? `rgba(196,181,253,${alpha})` : `rgba(167,139,250,${alpha})`;
+        ctx.shadowBlur = near ? 14 : 8;
+        ctx.shadowColor = near ? "rgba(167,139,250,0.9)" : "rgba(124,58,237,0.7)";
         ctx.fill();
         ctx.shadowBlur = 0;
+
         for (let j = i + 1; j < points.length; j++) {
           const q = points[j];
           const dx = p.x - q.x, dy = p.y - q.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
           if (dist < maxDist) {
-            const o = (1 - dist / maxDist) * 0.5;
+            const o = (1 - dist / maxDist) * 0.55;
+            // lignes plus lumineuses près de la souris
+            const lineNear = (mdist < 200 || Math.sqrt((mouse.x - q.x) ** 2 + (mouse.y - q.y) ** 2) < 200);
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(q.x, q.y);
-            ctx.strokeStyle = `rgba(124,58,237,${o})`;
-            ctx.lineWidth = 0.8;
+            ctx.strokeStyle = lineNear ? `rgba(167,139,250,${o * 1.3})` : `rgba(109,40,217,${o})`;
+            ctx.lineWidth = lineNear ? 1 : 0.7;
             ctx.stroke();
           }
         }
@@ -141,13 +164,22 @@ const Constellation = ({ isMobile }) => {
     };
 
     resize(); init();
-    if (reduced) { draw(); cancelAnimationFrame(raf); }
+    if (reduced) { ctx.fillStyle = "#07070d"; ctx.fillRect(0, 0, w, h); draw(); cancelAnimationFrame(raf); }
     else draw();
 
     let rt;
     const onResize = () => { clearTimeout(rt); rt = setTimeout(() => { resize(); init(); }, 200); };
+    const onMove = e => { mouse.x = e.clientX; mouse.y = e.clientY + window.scrollY; };
+    const onLeave = () => { mouse.x = -9999; mouse.y = -9999; };
     window.addEventListener("resize", onResize);
-    return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", onResize); };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseout", onLeave);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", onResize);
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseout", onLeave);
+    };
   }, [isMobile]);
 
   return <canvas ref={canvasRef} style={{ position: "absolute", top: 0, left: 0, width: "100%", pointerEvents: "none", zIndex: 0 }} />;
@@ -312,9 +344,9 @@ export default function NexoraLanding() {
         <FadeIn delay={0.3} style={{ marginTop: "4rem", borderTop: "1px solid #12121f", paddingTop: "2.5rem", width: "100%", maxWidth: 720 }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: isMobile ? "0.5rem" : "1.5rem" }}>
             {[
-              { big: "Décision", small: "pas prédiction. Nexora t'aide à décider, jamais à deviner." },
-              { big: "0", small: "signal, 0 conseil d'achat. Le focus, c'est ta décision." },
-              { big: "100%", small: "basé sur toi : ton profil, ton plan, ta psychologie." },
+              { big: "0", small: "signal." },
+              { big: "0", small: "promesse." },
+              { big: "100%", small: "basé sur toi et ton plan." },
             ].map((s, i) => (
               <div key={i} style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" }}>
                 <div style={{ fontFamily: "'Syne',sans-serif", fontSize: isMobile ? "1.4rem" : "2.2rem", fontWeight: 800, color: "#a78bfa", lineHeight: 1.1, marginBottom: "0.5rem", minHeight: isMobile ? "1.9rem" : "2.6rem", display: "flex", alignItems: "center" }}>{s.big}</div>
