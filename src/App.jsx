@@ -610,20 +610,27 @@ export default function NexoraLanding() {
           <div style={{ background: "#0d0d18", border: "1px solid #1a1a2e", borderRadius: 20, padding: "1.75rem" }}>
             <p style={{ fontSize: "0.68rem", color: "#6d28d9", letterSpacing: "0.08em", fontWeight: 600, marginBottom: "0.3rem" }}>GESTION DU RISQUE</p>
             <p style={{ fontSize: "0.8rem", color: "#334155", marginBottom: "1.5rem" }}>Tes derniers trades — ratio risque/récompense et respect du plan</p>
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.7rem" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
               {[
-                { pair: "EUR/USD", rr: "1:3.2", plan: "Respecté", ok: true, w: "92%" },
-                { pair: "XAU/USD", rr: "1:2.1", plan: "Respecté", ok: true, w: "78%" },
-                { pair: "GBP/USD", rr: "1:0.8", plan: "SL ignoré", ok: false, w: "30%" },
-                { pair: "US30", rr: "1:2.6", plan: "Respecté", ok: true, w: "84%" },
+                { pair: "EUR/USD", risk: "0,8%", rr: "1:3.2", plan: "Respecté", ok: true, w: "40%" },
+                { pair: "XAU/USD", risk: "1%", rr: "1:2.1", plan: "Respecté", ok: true, w: "50%" },
+                { pair: "GBP/USD", risk: "3,5%", rr: "1:0.8", plan: "SL ignoré", ok: false, w: "100%" },
+                { pair: "US30", risk: "0,9%", rr: "1:2.6", plan: "Respecté", ok: true, w: "45%" },
               ].map((t, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.85rem" }}>
-                  <span style={{ fontSize: "0.78rem", color: "#cbd5e1", fontWeight: 500, width: 72, flexShrink: 0 }}>{t.pair}</span>
-                  <div style={{ flex: 1, height: 8, background: "#12121f", borderRadius: 4, overflow: "hidden" }}>
-                    <div style={{ height: "100%", width: t.w, background: t.ok ? "linear-gradient(90deg,#6d28d9,#a78bfa)" : "linear-gradient(90deg,#7f1d1d,#f87171)", borderRadius: 4 }} />
+                <div key={i}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.35rem" }}>
+                    <span style={{ fontSize: "0.78rem", color: "#cbd5e1", fontWeight: 600 }}>{t.pair}</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+                      <span style={{ fontSize: "0.72rem", color: "#94a3b8", fontFamily: "'Syne',sans-serif", fontWeight: 700 }}>{t.rr}</span>
+                      <span style={{ fontSize: "0.66rem", color: t.ok ? "#34d399" : "#f87171", fontWeight: 600, background: t.ok ? "rgba(16,185,129,.1)" : "rgba(239,68,68,.1)", border: `1px solid ${t.ok ? "rgba(16,185,129,.25)" : "rgba(239,68,68,.25)"}`, borderRadius: 20, padding: "0.15rem 0.55rem", whiteSpace: "nowrap" }}>{t.plan}</span>
+                    </div>
                   </div>
-                  <span style={{ fontSize: "0.74rem", color: "#94a3b8", fontFamily: "'Syne',sans-serif", fontWeight: 700, width: 48, flexShrink: 0, textAlign: "right" }}>{t.rr}</span>
-                  <span style={{ fontSize: "0.66rem", color: t.ok ? "#34d399" : "#f87171", fontWeight: 600, width: 78, flexShrink: 0, textAlign: "right" }}>{t.plan}</span>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+                    <div style={{ flex: 1, height: 7, background: "#12121f", borderRadius: 4, overflow: "hidden" }}>
+                      <div style={{ height: "100%", width: t.w, background: t.ok ? "linear-gradient(90deg,#6d28d9,#a78bfa)" : "linear-gradient(90deg,#7f1d1d,#f87171)", borderRadius: 4 }} />
+                    </div>
+                    <span style={{ fontSize: "0.68rem", color: t.ok ? "#64748b" : "#f87171", fontWeight: 600, width: 48, flexShrink: 0, textAlign: "right" }}>{t.risk} risq.</span>
+                  </div>
                 </div>
               ))}
             </div>
